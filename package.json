@@ -1,0 +1,33 @@
+{
+  "name": "@flokani/astro-rechtstexte",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Astro Rechtstexte für eRecht24: Rechtstexte beim Build abrufen und statisch ausgeben.",
+  "type": "module",
+  "license": "UNLICENSED",
+  "engines": { "node": "^22.12.0 || ^24.0.0" },
+  "exports": {
+    ".": { "types": "./dist/index.d.ts", "import": "./dist/index.js" },
+    "./LegalText.astro": "./components/LegalText.astro"
+  },
+  "files": ["dist", "components"],
+  "keywords": ["astro-integration", "astro-component", "erecht24", "rechtstexte"],
+  "repository": { "type": "git", "url": "git+https://github.com/Flokani-Digital/erecht24-astrojs.git" },
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "check": "tsc -p tsconfig.json --noEmit",
+    "test": "npm run build && node --test test/*.test.mjs",
+    "test:integration": "npm run build && node --test test/integration/*.test.mjs",
+    "dev": "npm run build && node scripts/demo.mjs",
+    "prepack": "npm run build"
+  },
+  "peerDependencies": { "astro": "^7.0.0" },
+  "dependencies": { "parse5": "^8.0.1", "vite": "^8.0.13" },
+  "devDependencies": {
+    "@astrojs/check": "0.9.10",
+    "@astrojs/node": "11.1.6",
+    "@types/node": "^24.0.0",
+    "astro": "7.3.5",
+    "typescript": "^6.0.0"
+  }
+}

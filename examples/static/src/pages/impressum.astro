@@ -1,0 +1,8 @@
+---
+import Layout from '../layouts/Layout.astro';
+import LegalText from '@flokani/astro-rechtstexte/LegalText.astro';
+export const prerender = true;
+---
+<Layout title="Impressum" description="Künstliches Impressum zur Prüfung der Astro-Komponente und ihrer Einbindung in das Projektlayout.">
+  <LegalText type="imprint" class="legal-text" />
+</Layout>

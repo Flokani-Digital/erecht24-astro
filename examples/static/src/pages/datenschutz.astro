@@ -1,0 +1,8 @@
+---
+import Layout from '../layouts/Layout.astro';
+import LegalText from '@flokani/astro-rechtstexte/LegalText.astro';
+export const prerender = true;
+---
+<Layout title="Datenschutz" description="Künstliche Datenschutzerklärung zur Prüfung des deutschen HTML-Inhalts aus der Rechtstexte-Integration.">
+  <LegalText type="privacyPolicy" class="legal-text" />
+</Layout>

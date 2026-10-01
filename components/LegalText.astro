@@ -1,0 +1,23 @@
+---
+import content from 'virtual:flokani-rechtstexte';
+import type { DocumentType, Language } from '@flokani/astro-rechtstexte';
+
+interface Props {
+  type: DocumentType;
+  lang?: Language;
+  class?: string;
+}
+
+const { type, lang = content.languages[0], class: className } = Astro.props;
+const document = Object.hasOwn(content.documents, type) ? content.documents[type] : undefined;
+if (!document) {
+  throw new Error('[rechtstexte] Der Dokumenttyp wurde nicht in documents konfiguriert.');
+}
+if (!lang || !content.languages.includes(lang) || !document[lang]) {
+  throw new Error('[rechtstexte] Die Sprache wurde nicht in languages konfiguriert oder der Text fehlt.');
+}
+if (import.meta.env.PROD && !Astro.isPrerendered) {
+  throw new Error('[rechtstexte] Rechtstextseiten benötigen export const prerender = true.');
+}
+---
+<div class={className} lang={lang} set:html={document[lang]} />
