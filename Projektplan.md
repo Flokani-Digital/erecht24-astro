@@ -20,10 +20,13 @@ Besucher erhalten fertig erzeugte Rechtstextseiten. Der Abruf erfolgt in der Bui
 
 ## Name und Positionierung
 
-| Verwendung | Vorschlag |
+| Verwendung | Festlegung |
 |---|---|
 | Produktname / README-Titel | **Astro Rechtstexte für eRecht24** |
-| NPM-Paket | `@flokani/astro-rechtstexte` |
+| NPM-Paket | `@flokani.digital/erecht24-astro` |
+| NPM-Organisation | `flokani.digital` |
+| GitHub-Repository | `Flokani-Digital/erecht24-astro` |
+| Eintrag im Framework-Verzeichnis | Astro integration by @Flokani-Digital – Flokani-Digital/erecht24-astro |
 | Kurzbeschreibung | Impressum und Datenschutzerklärung aus eRecht24 automatisch beim Astro-Build einbinden. |
 | Anbieter | Flokani GmbH |
 
@@ -31,7 +34,9 @@ Der Produktname beschreibt den Zweck und verwendet den Zusatz „für eRecht24�
 
 > Sie dürfen an den Namen Ihres Plugins „für eRecht24“ oder „powered by eRecht24“ anhängen.
 
-Der NPM-Name ordnet das Paket Flokani zu und bleibt kurz. Die Verfügbarkeit des Paketnamens und unsere Berechtigung für den NPM-Scope `@flokani` sind noch zu prüfen. Der bestehende Repository-Name `erecht24-astrojs` kann zunächst bestehen bleiben.
+Der technische Name `erecht24-astro` benennt API und Framework und folgt dem Muster vergleichbarer Integrationen. NPM-Account und Organisation `flokani.digital` sind laut Bestätigung angelegt; der Paket-Scope lautet deshalb `@flokani.digital`. Vor der Veröffentlichung sind die Verfügbarkeit des vollständigen Paketnamens und die Veröffentlichungsberechtigung des verwendeten Accounts bzw. der CI zu prüfen. Der öffentliche Produktname verwendet weiterhin den Zusatz „für eRecht24“.
+
+Die Benennung ist in Paketmetadaten, Imports, Integrations- und Modulnamen, Fehlermeldungen, Beispielen und Dokumentation vereinheitlicht. Das GitHub-Repository und die lokale Remote-Adresse verwenden `Flokani-Digital/erecht24-astro`.
 
 ## Technisches Konzept
 
@@ -48,7 +53,7 @@ flowchart LR
 
 ### Datenübergabe an die Komponenten
 
-In `astro:config:setup` registriert die Integration ein Vite-Plugin für das virtuelle Modul `virtual:flokani-rechtstexte`. Dieses Modul stellt die geprüften Rechtstexte als importierbare Daten bereit. Die Komponente `LegalText.astro` liest daraus, ohne selbst die API aufzurufen oder Zugangsdaten zu benötigen.
+In `astro:config:setup` registriert die Integration ein Vite-Plugin für das virtuelle Modul `virtual:flokani-erecht24-astro`. Dieses Modul stellt die geprüften Rechtstexte als importierbare Daten bereit. Die Komponente `LegalText.astro` liest daraus, ohne selbst die API aufzurufen oder Zugangsdaten zu benötigen.
 
 Für den Produktionsabruf ist der Astro-Hook `astro:build:start` vorgesehen. Die Integration lädt und prüft alle ausgewählten Dokumente, bevor das virtuelle Modul ihre Inhalte beim Bündeln einbettet. Es werden ausschließlich die benötigten Inhalte und die nicht vertrauliche Dokument-/Sprachauswahl serialisiert. Schlüssel, Request-Header und vollständige Konfigurations- oder Fehlerobjekte gehören nicht in das Modul.
 
@@ -151,7 +156,7 @@ Die folgenden Beispiele entsprechen der implementierten Schnittstelle. Eine ausf
 ```js
 // astro.config.mjs
 import { defineConfig } from "astro/config";
-import rechtstexte from "@flokani/astro-rechtstexte";
+import rechtstexte from "@flokani.digital/erecht24-astro";
 
 export default defineConfig({
   trailingSlash: "always",
@@ -179,7 +184,7 @@ documents: ["imprint", "privacyPolicy", "privacyPolicySocialMedia"]
 ```astro
 ---
 // src/pages/impressum.astro
-import LegalText from "@flokani/astro-rechtstexte/LegalText.astro";
+import LegalText from "@flokani.digital/erecht24-astro/LegalText.astro";
 import Layout from "../layouts/Layout.astro";
 
 export const prerender = true;
@@ -258,8 +263,7 @@ Diese Funktionen gehören nicht zum Umfang der ersten Version. Der erste Schwerp
 
 ## Offene Punkte vor Produktiveinsatz und Veröffentlichung
 
-- Produkt- und Paketnamen endgültig festlegen.
-- Verfügbarkeit des NPM-Paketnamens und Berechtigung für den Scope prüfen.
+- Verfügbarkeit von `@flokani.digital/erecht24-astro` und Veröffentlichungsberechtigung in der bereits angelegten NPM-Organisation `flokani.digital` prüfen.
 - Developer-/Plugin-Key bereitstellen und Projekt-API-Key sowie Testdokumente bestätigen. Die API-Vereinbarung ist bereits abgeschlossen.
 - Veröffentlichungslizenz festlegen.
 - Zeitplan und Fehlerbenachrichtigung für regelmäßige Builds je Projekt festlegen.
@@ -268,7 +272,7 @@ Diese Funktionen gehören nicht zum Umfang der ersten Version. Der erste Schwerp
 
 Vorhanden sind die TypeScript-Integration, der API-Abruf mit Timeout und Wiederholungsversuchen, Inhaltsprüfung, Warnungsausgabe, das virtuelle Inhaltsmodul und `LegalText.astro`. Zwei Beispielkonfigurationen zeigen statische Websites sowie SSR mit vorgerenderten Rechtstextseiten. `npm run dev` startet eine lokale Demo mit künstlichen Daten; echte Schlüssel werden dafür nicht benötigt.
 
-Das Paket bleibt als `private: true` mit `UNLICENSED` markiert, bis Scope und Veröffentlichungslizenz geklärt sind. Es ist noch nicht veröffentlicht.
+Die NPM-Organisation `flokani.digital` und damit der Scope `@flokani.digital` sind festgelegt. Das Paket bleibt als `private: true` mit `UNLICENSED` markiert, bis Veröffentlichungsberechtigung und Lizenz geklärt sind. Es ist noch nicht veröffentlicht.
 
 Automatisiert geprüft:
 

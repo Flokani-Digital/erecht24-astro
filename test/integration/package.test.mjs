@@ -106,7 +106,7 @@ test('Gepacktes Paket in eigenständigen Astro-Projekten', { timeout: 300_000 },
     await cp(join(root, 'examples', kind, 'astro.config.mjs'), join(directory, 'astro.config.mjs'));
     await cp(join(root, 'examples', kind, 'tsconfig.json'), join(directory, 'tsconfig.json'));
     if (kind === 'static') await cp(join(root, 'examples/static/src'), join(directory, 'src'), { recursive: true });
-    const dependencies = { '@flokani/astro-rechtstexte': `file:${join(work, pack.filename)}` };
+    const dependencies = { '@flokani.digital/erecht24-astro': `file:${join(work, pack.filename)}` };
     for (const name of ['astro', '@astrojs/node', '@astrojs/check', 'typescript']) {
       dependencies[name] = JSON.parse(await readFile(join(root, 'node_modules', name, 'package.json'), 'utf8')).version;
     }

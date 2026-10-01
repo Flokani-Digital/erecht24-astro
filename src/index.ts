@@ -6,7 +6,7 @@ import { normalizeOptions, type ContentSnapshot, type RechtstexteOptions } from 
 
 export type { RechtstexteOptions, DocumentType, Language, ContentSnapshot } from './types.js';
 
-const moduleId = 'virtual:flokani-rechtstexte';
+const moduleId = 'virtual:flokani-erecht24-astro';
 const resolvedId = '\0' + moduleId;
 
 export default function rechtstexte(options: RechtstexteOptions = {}): AstroIntegration {
@@ -19,7 +19,7 @@ export default function rechtstexte(options: RechtstexteOptions = {}): AstroInte
   let command = '';
 
   return {
-    name: '@flokani/astro-rechtstexte',
+    name: '@flokani.digital/erecht24-astro',
     hooks: {
       'astro:config:setup': ({ config, command: currentCommand, updateConfig, logger }) => {
         command = currentCommand;
@@ -41,7 +41,7 @@ export default function rechtstexte(options: RechtstexteOptions = {}): AstroInte
         };
 
         const plugin: Plugin = {
-          name: 'flokani-rechtstexte-content',
+          name: 'flokani-erecht24-astro-content',
           enforce: 'pre',
           configResolved(viteConfig) {
             mode = viteConfig.mode;
@@ -50,7 +50,7 @@ export default function rechtstexte(options: RechtstexteOptions = {}): AstroInte
           resolveId(id) {
             if (id !== moduleId) return;
             if (this.environment?.name === 'client') {
-              throw new Error('[rechtstexte] Rechtstexte dürfen nur im Astro-Frontmatter importiert werden.');
+              throw new Error('[@flokani.digital/erecht24-astro] Rechtstexte dürfen nur im Astro-Frontmatter importiert werden.');
             }
             return resolvedId;
           },
@@ -59,7 +59,7 @@ export default function rechtstexte(options: RechtstexteOptions = {}): AstroInte
             if (command === 'dev') await read!();
             if (!snapshot) {
               if (command === 'sync') return 'export default { languages: [], documents: {} };';
-              throw new Error('[rechtstexte] Inhalte sind vor dem Rendern noch nicht geladen.');
+              throw new Error('[@flokani.digital/erecht24-astro] Inhalte sind vor dem Rendern noch nicht geladen.');
             }
             return `export default ${JSON.stringify(snapshot)};`;
           },
@@ -68,9 +68,9 @@ export default function rechtstexte(options: RechtstexteOptions = {}): AstroInte
       },
       'astro:config:done': ({ injectTypes }) => {
         injectTypes({
-          filename: 'rechtstexte.d.ts',
+          filename: 'erecht24-astro.d.ts',
           content: `declare module '${moduleId}' {
-  const content: import('@flokani/astro-rechtstexte').ContentSnapshot;
+  const content: import('@flokani.digital/erecht24-astro').ContentSnapshot;
   export default content;
 }`,
         });

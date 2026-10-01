@@ -21,11 +21,11 @@ export function credentialsFrom(values: Record<string, string | undefined>): Cre
   const apiKey = values.ERECHT24_API_KEY?.trim();
   const pluginKey = values.ERECHT24_PLUGIN_KEY?.trim();
   if (!apiKey || !pluginKey) {
-    throw new Error('[rechtstexte] ERECHT24_API_KEY und ERECHT24_PLUGIN_KEY werden für den Abruf benötigt.');
+    throw new Error('[@flokani.digital/erecht24-astro] ERECHT24_API_KEY und ERECHT24_PLUGIN_KEY werden für den Abruf benötigt.');
   }
   // Reject control characters without reflecting credential values in the error.
   if (!/^[\x21-\x7e]+$/.test(apiKey) || !/^[\x21-\x7e]+$/.test(pluginKey)) {
-    throw new Error('[rechtstexte] Zugangsschlüssel enthalten ungültige Zeichen.');
+    throw new Error('[@flokani.digital/erecht24-astro] Zugangsschlüssel enthalten ungültige Zeichen.');
   }
   return { apiKey, pluginKey };
 }
@@ -85,7 +85,7 @@ async function readDocument(
       else await response.body?.cancel();
     } catch {
       if (attempt === 2) {
-        throw new Error(`[rechtstexte] ${type}: Netzwerkfehler oder Timeout nach 3 Versuchen.`);
+        throw new Error(`[@flokani.digital/erecht24-astro] ${type}: Netzwerkfehler oder Timeout nach 3 Versuchen.`);
       }
       await sleep(1000 * 2 ** attempt);
       continue;
@@ -96,7 +96,7 @@ async function readDocument(
         await sleep(delay);
         continue;
       }
-      throw new Error(`[rechtstexte] ${type}: Abruf fehlgeschlagen (HTTP ${response.status}). ` +
+      throw new Error(`[@flokani.digital/erecht24-astro] ${type}: Abruf fehlgeschlagen (HTTP ${response.status}). ` +
         (response.status === 401 ? 'Zugangsschlüssel und eRecht24-Mitgliedschaft prüfen.' :
           response.status === 404 ? 'Das Dokument muss im eRecht24-Projekt angelegt sein.' :
             'Dokumentzugriff und API-Verfügbarkeit prüfen.'));
@@ -104,10 +104,10 @@ async function readDocument(
     try {
       return JSON.parse(body!);
     } catch {
-      throw new Error(`[rechtstexte] ${type}: Die API-Antwort enthält kein gültiges JSON.`);
+      throw new Error(`[@flokani.digital/erecht24-astro] ${type}: Die API-Antwort enthält kein gültiges JSON.`);
     }
   }
-  throw new Error('[rechtstexte] Abruf fehlgeschlagen.');
+  throw new Error('[@flokani.digital/erecht24-astro] Abruf fehlgeschlagen.');
 }
 
 export async function fetchDocuments(
@@ -121,23 +121,23 @@ export async function fetchDocuments(
   for (const type of selection.documents) {
     const data = await readDocument(type, credentials, dependencies);
     if (!data || typeof data !== 'object' || Array.isArray(data)) {
-      throw new Error(`[rechtstexte] ${type}: Unerwartete Antwortstruktur.`);
+      throw new Error(`[@flokani.digital/erecht24-astro] ${type}: Unerwartete Antwortstruktur.`);
     }
     const record = data as Record<string, unknown>;
     const translations: Partial<Record<'de' | 'en', string>> = {};
     for (const lang of selection.languages) {
       const html = record[`html_${lang}`];
       if (typeof html !== 'string' || !plainText(html)) {
-        throw new Error(`[rechtstexte] ${type} (${lang}): Rechtstext fehlt oder ist leer.`);
+        throw new Error(`[@flokani.digital/erecht24-astro] ${type} (${lang}): Rechtstext fehlt oder ist leer.`);
       }
       // Do not silently alter legal content; reject a response reflecting credentials.
       if ([credentials.apiKey, credentials.pluginKey].some((secret) => html.includes(secret))) {
-        throw new Error(`[rechtstexte] ${type}: Die API-Antwort enthält vertrauliche Zugangsdaten.`);
+        throw new Error(`[@flokani.digital/erecht24-astro] ${type}: Die API-Antwort enthält vertrauliche Zugangsdaten.`);
       }
       translations[lang] = html;
     }
     if (record.warnings != null && typeof record.warnings !== 'string') {
-      throw new Error(`[rechtstexte] ${type}: Ungültiges warnings-Feld.`);
+      throw new Error(`[@flokani.digital/erecht24-astro] ${type}: Ungültiges warnings-Feld.`);
     }
     if (typeof record.warnings === 'string') {
       const message = redact(plainText(record.warnings), credentials)

@@ -21,22 +21,22 @@ export interface Selection {
 
 export function normalizeOptions(options: RechtstexteOptions): Selection {
   if (!options || typeof options !== 'object' || Array.isArray(options)) {
-    throw new Error('[rechtstexte] Die Konfiguration muss ein Objekt sein.');
+    throw new Error('[@flokani.digital/erecht24-astro] Die Konfiguration muss ein Objekt sein.');
   }
   for (const key of Object.keys(options)) {
     if (key !== 'documents' && key !== 'languages') {
-      throw new Error('[rechtstexte] Unbekannte Option. Erlaubt sind documents und languages.');
+      throw new Error('[@flokani.digital/erecht24-astro] Unbekannte Option. Erlaubt sind documents und languages.');
     }
   }
   const documents: readonly DocumentType[] = options.documents === undefined ? ['imprint', 'privacyPolicy'] : options.documents;
   const selectedLanguages: readonly Language[] = options.languages === undefined ? ['de'] : options.languages;
   if (!Array.isArray(documents) || documents.length === 0 ||
     Array.from(documents).some((value) => !documentTypes.includes(value))) {
-    throw new Error('[rechtstexte] documents muss bekannte Dokumenttypen enthalten.');
+    throw new Error('[@flokani.digital/erecht24-astro] documents muss bekannte Dokumenttypen enthalten.');
   }
   if (!Array.isArray(selectedLanguages) || selectedLanguages.length === 0 ||
     Array.from(selectedLanguages).some((value) => !languages.includes(value))) {
-    throw new Error('[rechtstexte] languages muss de und/oder en enthalten.');
+    throw new Error('[@flokani.digital/erecht24-astro] languages muss de und/oder en enthalten.');
   }
   return { documents: [...new Set(documents)], languages: [...new Set(selectedLanguages)] };
 }

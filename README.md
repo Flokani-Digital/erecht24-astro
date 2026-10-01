@@ -1,8 +1,16 @@
 # Astro Rechtstexte für eRecht24
 
-Astro-Integration von Flokani zum Abruf von Impressum, Datenschutzerklärung und optional Social-Media-Datenschutz bei eRecht24. Die Texte werden beim Build geladen und als statisches HTML ausgegeben.
+Das NPM-Paket `@flokani.digital/erecht24-astro` ist eine Astro-Integration von Flokani zum Abruf von Impressum, Datenschutzerklärung und optional Social-Media-Datenschutz bei eRecht24. Die Texte werden beim Build geladen und als statisches HTML ausgegeben.
 
-**Entwicklungsstand:** erste Implementierung mit simulierten API-Antworten. Das Paket ist noch nicht veröffentlicht und bleibt bis zur Klärung von Lizenz und NPM-Scope `private`. Der echte API-Test steht aus, da der Developer-/Plugin-Key noch fehlt. Der vollständige Umfang ist im [Projektplan](Projektplan.md) beschrieben.
+| Verwendung | Name |
+|---|---|
+| Produkt | Astro Rechtstexte für eRecht24 |
+| NPM-Paket | `@flokani.digital/erecht24-astro` |
+| NPM-Organisation | `flokani.digital` |
+| GitHub-Repository | [Flokani-Digital/erecht24-astro](https://github.com/Flokani-Digital/erecht24-astro) |
+| Anbieter | Flokani GmbH |
+
+**Entwicklungsstand:** erste Implementierung mit simulierten API-Antworten. NPM-Account und Organisation `flokani.digital` sind angelegt. Das Paket ist noch nicht veröffentlicht und bleibt bis zur Klärung der Lizenz und Prüfung der Veröffentlichungsberechtigung `private`. Der echte API-Test steht aus, da der Developer-/Plugin-Key noch fehlt. Der vollständige Umfang ist im [Projektplan](Projektplan.md) beschrieben.
 
 ## Lokal entwickeln
 
@@ -33,13 +41,13 @@ Die Integrationstests erzeugen zwei getrennte Projekte unter `.test-work/`. Sie 
 Bis zur Veröffentlichung das mit `npm pack` erzeugte Archiv im Zielprojekt installieren:
 
 ```sh
-npm install /pfad/zum/flokani-astro-rechtstexte-0.1.0.tgz
+npm install /pfad/zum/flokani.digital-erecht24-astro-0.1.0.tgz
 ```
 
 ```js
 // astro.config.mjs
 import { defineConfig } from 'astro/config';
-import rechtstexte from '@flokani/astro-rechtstexte';
+import rechtstexte from '@flokani.digital/erecht24-astro';
 
 export default defineConfig({
   trailingSlash: 'always',
@@ -75,7 +83,7 @@ Im Deployment-System beide Werte als Secrets hinterlegen. Die Integration berüc
 ```astro
 ---
 // src/pages/impressum.astro
-import LegalText from '@flokani/astro-rechtstexte/LegalText.astro';
+import LegalText from '@flokani.digital/erecht24-astro/LegalText.astro';
 import Layout from '../layouts/Layout.astro';
 
 export const prerender = true;

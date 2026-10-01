@@ -1,6 +1,6 @@
 ---
-import content from 'virtual:flokani-rechtstexte';
-import type { DocumentType, Language } from '@flokani/astro-rechtstexte';
+import content from 'virtual:flokani-erecht24-astro';
+import type { DocumentType, Language } from '@flokani.digital/erecht24-astro';
 
 interface Props {
   type: DocumentType;
@@ -11,13 +11,13 @@ interface Props {
 const { type, lang = content.languages[0], class: className } = Astro.props;
 const document = Object.hasOwn(content.documents, type) ? content.documents[type] : undefined;
 if (!document) {
-  throw new Error('[rechtstexte] Der Dokumenttyp wurde nicht in documents konfiguriert.');
+  throw new Error('[@flokani.digital/erecht24-astro] Der Dokumenttyp wurde nicht in documents konfiguriert.');
 }
 if (!lang || !content.languages.includes(lang) || !document[lang]) {
-  throw new Error('[rechtstexte] Die Sprache wurde nicht in languages konfiguriert oder der Text fehlt.');
+  throw new Error('[@flokani.digital/erecht24-astro] Die Sprache wurde nicht in languages konfiguriert oder der Text fehlt.');
 }
 if (import.meta.env.PROD && !Astro.isPrerendered) {
-  throw new Error('[rechtstexte] Rechtstextseiten benötigen export const prerender = true.');
+  throw new Error('[@flokani.digital/erecht24-astro] Rechtstextseiten benötigen export const prerender = true.');
 }
 ---
 <div class={className} lang={lang} set:html={document[lang]} />
