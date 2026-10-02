@@ -11,10 +11,10 @@ interface Props {
 const { type, lang = content.languages[0], class: className } = Astro.props;
 const document = Object.hasOwn(content.documents, type) ? content.documents[type] : undefined;
 if (!document) {
-  throw new Error('[@flokani.digital/erecht24-astro] Der Dokumenttyp wurde nicht in documents konfiguriert.');
+  throw new Error(`[@flokani.digital/erecht24-astro] Der Dokumenttyp ${JSON.stringify(type)} wurde nicht in documents konfiguriert.`);
 }
 if (!lang || !content.languages.includes(lang) || !document[lang]) {
-  throw new Error('[@flokani.digital/erecht24-astro] Die Sprache wurde nicht in languages konfiguriert oder der Text fehlt.');
+  throw new Error(`[@flokani.digital/erecht24-astro] Die Sprache ${JSON.stringify(lang)} wurde für ${type} nicht in languages konfiguriert oder der Text fehlt.`);
 }
 if (import.meta.env.PROD && !Astro.isPrerendered) {
   throw new Error('[@flokani.digital/erecht24-astro] Rechtstextseiten benötigen export const prerender = true.');

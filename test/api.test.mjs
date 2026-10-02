@@ -29,12 +29,20 @@ test('Standardauswahl, Duplikate und ungültige Konfiguration', () => {
 
 test('Zugangsschlüssel fehlen oder enthalten ungültige Zeichen', () => {
   assert.deepEqual(credentialsFrom({ ERECHT24_API_KEY: ` ${apiKey} `, ERECHT24_PLUGIN_KEY: pluginKey }), credentials);
-  for (const values of [{}, { ERECHT24_API_KEY: apiKey },
-    { ERECHT24_API_KEY: apiKey + '\nunsafe', ERECHT24_PLUGIN_KEY: pluginKey }]) {
-    assert.throws(() => credentialsFrom(values), (error) => {
+  for (const [values, builtIn] of [[{}, pluginKey], [{ ERECHT24_API_KEY: apiKey }, ''],
+    [{ ERECHT24_API_KEY: apiKey + '\nunsafe' }, pluginKey], [{ ERECHT24_API_KEY: apiKey }, pluginKey + '\n']]) {
+    assert.throws(() => credentialsFrom(values, builtIn), (error) => {
       assertSecretFree(error); return true;
     });
   }
+  assert.throws(() => credentialsFrom({}, pluginKey), /ERECHT24_API_KEY wird/);
+  assert.throws(() => credentialsFrom({ ERECHT24_API_KEY: apiKey }, ''), /Developer-Key/);
+});
+
+test('Eingebauter Plugin-Key, optional per Variable überschreibbar', () => {
+  assert.deepEqual(credentialsFrom({ ERECHT24_API_KEY: apiKey }, pluginKey), credentials);
+  assert.deepEqual(credentialsFrom({ ERECHT24_API_KEY: apiKey, ERECHT24_PLUGIN_KEY: ' ' }, pluginKey), credentials);
+  assert.equal(credentialsFrom({ ERECHT24_API_KEY: apiKey, ERECHT24_PLUGIN_KEY: 'own-key' }, pluginKey).pluginKey, 'own-key');
 });
 
 test('Ein Abruf pro Dokument, beide Sprachen und unverändertes Original-HTML', async () => {
@@ -78,6 +86,12 @@ test('Markup ohne Inhalt, fehlende Sprachen und ungültige Antworten brechen ohn
     { fetch: async () => json({ html_de: 'Deutsch' }) }), /imprint \(en\)/);
   await assert.rejects(fetchDocuments(selected, credentials, noop,
     { fetch: async () => new Response(`invalid ${pluginKey}`) }), /kein gültiges JSON/);
+});
+
+test('Öffentlicher Plugin-Key im Rechtstext bricht den Abruf nicht ab', async () => {
+  const html = `<p>Plugin ${pluginKey}</p>`;
+  const result = await fetchDocuments(selected, credentials, noop, { fetch: async () => json({ html_de: html }) });
+  assert.equal(result.documents.imprint.de, html);
 });
 
 test('Warnungen sind lesbar und enthalten keine Zugangsschlüssel', async () => {

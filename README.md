@@ -10,7 +10,7 @@ Das NPM-Paket `@flokani.digital/erecht24-astro` ist eine Astro-Integration von F
 | GitHub-Repository | [Flokani-Digital/erecht24-astro](https://github.com/Flokani-Digital/erecht24-astro) |
 | Anbieter | Flokani GmbH |
 
-**Entwicklungsstand:** erste Implementierung mit simulierten API-Antworten. NPM-Account und Organisation `flokani.digital` sind angelegt. Das Paket ist noch nicht veröffentlicht und bleibt bis zur Klärung der Lizenz und Prüfung der Veröffentlichungsberechtigung `private`. Der echte API-Test steht aus, da der Developer-/Plugin-Key noch fehlt. Der vollständige Umfang ist im [Projektplan](Projektplan.md) beschrieben.
+**Entwicklungsstand:** erste Implementierung mit simulierten API-Antworten. NPM-Account und Organisation `flokani.digital` sind angelegt. Das Paket ist noch nicht veröffentlicht und bleibt bis zur Klärung der Lizenz und Prüfung der Veröffentlichungsberechtigung `private`. Ein Live-Test mit den öffentlichen Demo-Schlüsseln von eRecht24 läuft erfolgreich (`npm run test:live`). Der eigene Flokani-Developer-Key fehlt noch und wird nach Erhalt in `src/plugin-key.ts` eingetragen. Der vollständige Umfang ist im [Projektplan](Projektplan.md) beschrieben.
 
 ## Lokal entwickeln
 
@@ -31,6 +31,7 @@ Die Demo ist unter `http://127.0.0.1:4337/` erreichbar. Sie verwendet ausschlie�
 | `npm run check` | TypeScript prüfen |
 | `npm test` | API-, Inhalts-, Konfigurations-, Retry- und Timeout-Tests |
 | `npm run test:integration` | Paketarchiv installieren; Astro-Builds, Befehle, Umgebungsvariablen und Ausgaben prüfen |
+| `npm run test:live` | Optional: echte eRecht24-API mit den öffentlichen Demo-Schlüsseln abfragen |
 | `npm run dev` | Statische Demo mit simuliertem eRecht24-Server starten |
 | `npm pack` | Lokales NPM-Archiv erstellen; veröffentlicht nichts |
 
@@ -73,10 +74,9 @@ Im **Astro-Zielprojekt** eine nicht versionierte `.env.local` anlegen, entsprech
 
 ```dotenv
 ERECHT24_API_KEY=projekt-api-key
-ERECHT24_PLUGIN_KEY=developer-plugin-key
 ```
 
-Im Deployment-System beide Werte als Secrets hinterlegen. Die Integration berücksichtigt Vites tatsächlichen `mode` und `envDir`; bereits gesetzte Umgebungsvariablen haben Vorrang. `vite.envDir: false` deaktiviert das Laden der Dateien. Die Variablen erhalten keinen `PUBLIC_`-Präfix.
+Den Projekt-API-Key erzeugt der Kunde im eRecht24-Projekt-Manager. Er ist geheim und gehört im Deployment-System in ein Secret. Den Developer-Key (`eRecht24-plugin-key`) vergibt eRecht24 an Flokani. Er identifiziert das Plugin, ist im Paket enthalten und kein Geheimnis. `ERECHT24_PLUGIN_KEY` ist deshalb nur für eigene Integrationen mit eigenem Developer-Key nötig und überschreibt dann den eingebauten Wert. Die Integration berücksichtigt Vites tatsächlichen `mode` und `envDir`; bereits gesetzte Umgebungsvariablen haben Vorrang. `vite.envDir: false` deaktiviert das Laden der Dateien. Die Variablen erhalten keinen `PUBLIC_`-Präfix.
 
 ### Seiten und Komponente
 
@@ -94,7 +94,7 @@ export const prerender = true;
 </Layout>
 ```
 
-Entsprechend auf `/datenschutz/` den Typ `privacyPolicy` und optional auf `/datenschutz-social-media/` den Typ `privacyPolicySocialMedia` verwenden. Bei `languages: ['de', 'en']` kann eine englische Seite `lang="en"` setzen. Ohne `lang` gilt die erste konfigurierte Sprache. Nicht konfigurierte Dokumente oder Sprachen erzeugen einen Fehler.
+Entsprechend auf `/datenschutz/` den Typ `privacyPolicy` und optional auf `/datenschutz-social-media/` den Typ `privacyPolicySocialMedia` verwenden. Impressum und Datenschutzerklärung bringen ein eigenes `<h1>` mit, deshalb hier keine zweite H1 setzen. Der Social-Media-Text beginnt dagegen ohne H1 mit `<h3>`. Die Seite braucht also eine eigene Überschrift, alternativ den Text unter der Datenschutzerklärung einbinden. Bei `languages: ['de', 'en']` kann eine englische Seite `lang="en"` setzen. Ohne `lang` gilt die erste konfigurierte Sprache. Nicht konfigurierte Dokumente oder Sprachen erzeugen einen Fehler.
 
 **Auch in SSR-Projekten benötigen Rechtstextseiten `export const prerender = true`.** Die Komponente weist eine dynamische Ausgabe im Produktionsbetrieb beim Rendern zurück. Sie fügt Seiten oder Layouts nicht automatisch hinzu.
 
@@ -146,7 +146,11 @@ RECHTSTEXTE_TEST_ADAPTER_VERSION=11.0.0 \
 npm run test:integration
 ```
 
-Visuelle Browserprüfung, Live-Test gegen eRecht24 und Prüfung im ersten echten Flokani-Projekt stehen aus. Die Demo-Texte sind keine gültigen Rechtstexte.
+Visuelle Browserprüfung, Live-Test mit dem eigenen Developer-Key und Prüfung im ersten echten Flokani-Projekt stehen aus.
+
+## Geplant
+
+Push-Benachrichtigungen von eRecht24: Ein serverseitiger Endpunkt prüft das Push-Secret, beantwortet `ping` und löst über den Deploy-Hook des Hosters einen neuen Build aus. Die Rechtstextseiten bleiben dabei vorgerendert. Für rein statische Projekte ist ein externer Relay vorgesehen (z. B. n8n). Dazu kommt eine CLI zum Registrieren der Push-Clients. Dies ist nicht Teil der ersten Version. Die Demo-Texte sind keine gültigen Rechtstexte.
 
 ## Quellen
 

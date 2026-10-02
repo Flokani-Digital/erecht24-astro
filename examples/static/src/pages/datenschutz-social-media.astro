@@ -4,5 +4,7 @@ import LegalText from '@flokani.digital/erecht24-astro/LegalText.astro';
 export const prerender = true;
 ---
 <Layout title="Social-Media-Datenschutz" description="Künstlicher Social-Media-Datenschutz als optionaler Dokumenttyp der Astro-Rechtstexte-Integration.">
+  {/* Der Social-Media-Text beginnt ohne eigene H1 (ab h3). */}
+  <h1>Datenschutz für Social Media</h1>
   <LegalText type="privacyPolicySocialMedia" class="legal-text" />
 </Layout>
