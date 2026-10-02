@@ -13,8 +13,8 @@ export const texts = {
     html_en: '<h1>Privacy policy</h1><h2>Controller</h2><p>Example Ltd</p><p>This fixture is not a privacy policy.</p>',
   },
   privacyPolicySocialMedia: {
-    html_de: '<h1>Datenschutz für Social Media</h1><p>Künstliches Beispiel für unsere Social-Media-Präsenzen.</p>',
-    html_en: '<h1>Social media privacy</h1><p>Fictional example for our social media profiles.</p>',
+    html_de: '<h3>Unsere Social-Media-Auftritte</h3><p>Künstliches Beispiel für unsere Social-Media-Präsenzen.</p>',
+    html_en: '<h3>Our social media profiles</h3><p>Fictional example for our social media profiles.</p>',
   },
 };
 

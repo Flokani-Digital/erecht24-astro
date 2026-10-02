@@ -36,7 +36,11 @@ export default function rechtstexte(options: RechtstexteOptions = {}): AstroInte
             });
             snapshot = await fetchDocuments(selection, credentials, (message) => logger.warn(message));
             return snapshot;
-          })();
+          })().catch((error: unknown) => {
+            // Allow the next dev request to retry after fixing the cause.
+            pending = undefined;
+            throw error;
+          });
           return pending;
         };
 

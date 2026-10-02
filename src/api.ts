@@ -1,4 +1,5 @@
 import { parseFragment, type DefaultTreeAdapterMap } from 'parse5';
+import { defaultPluginKey } from './plugin-key.js';
 import type { ContentSnapshot, DocumentType, Selection } from './types.js';
 
 const baseUrl = 'https://api.e-recht24.de/v2/';
@@ -17,11 +18,18 @@ export interface ApiDependencies {
   timeoutMs?: number;
 }
 
-export function credentialsFrom(values: Record<string, string | undefined>): Credentials {
+export function credentialsFrom(
+  values: Record<string, string | undefined>, builtInPluginKey: string = defaultPluginKey,
+): Credentials {
   const apiKey = values.ERECHT24_API_KEY?.trim();
-  const pluginKey = values.ERECHT24_PLUGIN_KEY?.trim();
-  if (!apiKey || !pluginKey) {
-    throw new Error('[@flokani.digital/erecht24-astro] ERECHT24_API_KEY und ERECHT24_PLUGIN_KEY werden für den Abruf benötigt.');
+  // The plugin key ships with the package; the variable only overrides it for own integrations.
+  const pluginKey = values.ERECHT24_PLUGIN_KEY?.trim() || builtInPluginKey;
+  if (!apiKey) {
+    throw new Error('[@flokani.digital/erecht24-astro] ERECHT24_API_KEY wird für den Abruf benötigt.');
+  }
+  if (!pluginKey) {
+    throw new Error('[@flokani.digital/erecht24-astro] Das Paket enthält noch keinen eRecht24-Developer-Key. ' +
+      'Für eigene Integrationen ERECHT24_PLUGIN_KEY setzen.');
   }
   // Reject control characters without reflecting credential values in the error.
   if (!/^[\x21-\x7e]+$/.test(apiKey) || !/^[\x21-\x7e]+$/.test(pluginKey)) {
@@ -82,7 +90,7 @@ async function readDocument(
         signal,
       });
       if (response.ok) body = await response.text();
-      else await response.body?.cancel();
+      else await response.body?.cancel().catch(() => {});
     } catch {
       if (attempt === 2) {
         throw new Error(`[@flokani.digital/erecht24-astro] ${type}: Netzwerkfehler oder Timeout nach 3 Versuchen.`);
@@ -107,6 +115,7 @@ async function readDocument(
       throw new Error(`[@flokani.digital/erecht24-astro] ${type}: Die API-Antwort enthält kein gültiges JSON.`);
     }
   }
+  // Unreachable: the last attempt always returns or throws. Satisfies the return type.
   throw new Error('[@flokani.digital/erecht24-astro] Abruf fehlgeschlagen.');
 }
 
@@ -130,8 +139,9 @@ export async function fetchDocuments(
       if (typeof html !== 'string' || !plainText(html)) {
         throw new Error(`[@flokani.digital/erecht24-astro] ${type} (${lang}): Rechtstext fehlt oder ist leer.`);
       }
-      // Do not silently alter legal content; reject a response reflecting credentials.
-      if ([credentials.apiKey, credentials.pluginKey].some((secret) => html.includes(secret))) {
+      // Do not silently alter legal content; reject a response reflecting the project key.
+      // The plugin key is public and therefore not checked.
+      if (html.includes(credentials.apiKey)) {
         throw new Error(`[@flokani.digital/erecht24-astro] ${type}: Die API-Antwort enthält vertrauliche Zugangsdaten.`);
       }
       translations[lang] = html;

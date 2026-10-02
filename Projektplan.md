@@ -115,16 +115,16 @@ Für alle ausgewählten Dokumenttypen gelten dieselben Sprach- und Fehlerregeln.
 
 ### Zugangsdaten
 
-Die Integration soll die Zugangsdaten aus folgenden Umgebungsvariablen laden:
+eRecht24 verlangt zwei Schlüssel:
 
-| Variable | Zweck |
-|---|---|
-| `ERECHT24_API_KEY` | API-Key des jeweiligen eRecht24-Projekts |
-| `ERECHT24_PLUGIN_KEY` | Von eRecht24 vergebener Developer-/Plugin-Key |
+| Schlüssel | Herkunft | Bereitstellung |
+|---|---|---|
+| `eRecht24-api-key` | Kunde, eRecht24-Projekt-Manager, je Projekt | Umgebungsvariable `ERECHT24_API_KEY`, geheim |
+| `eRecht24-plugin-key` | eRecht24 an Flokani, identifiziert das Plugin | fest im Paket (`src/plugin-key.ts`), öffentlich; optional per `ERECHT24_PLUGIN_KEY` überschreibbar |
 
-eRecht24 verlangt beide Schlüssel. Die API-Vereinbarung ist abgeschlossen; der eigene Developer-/Plugin-Key steht noch aus. Dies verhindert die Entwicklung und automatisierte Prüfung mit simulierten Antworten nicht, bleibt aber eine Voraussetzung für den abschließenden echten API-Test.
+Die API-Vereinbarung ist abgeschlossen; der eigene Developer-Key steht noch aus. Bis dahin bricht ein Abruf ohne `ERECHT24_PLUGIN_KEY` mit einem klaren Hinweis ab. Ein Live-Test mit den öffentlichen Demo-Schlüsseln aus der eRecht24-OpenAPI läuft bereits (`npm run test:live`).
 
-Die Schlüssel werden lokal über eine nicht versionierte Umgebungskonfiguration und im Deployment-System als Secrets bereitgestellt. Sie erhalten keinen `PUBLIC_`-Präfix.
+Der Projekt-API-Key wird lokal über eine nicht versionierte Umgebungskonfiguration und im Deployment-System als Secret bereitgestellt. Er erhält keinen `PUBLIC_`-Präfix.
 
 - `.env`-Dateien passend zum tatsächlichen Projekt-/Env-Verzeichnis und Ausführungsmodus laden, beispielsweise mit Vites `loadEnv` und dem Präfix `ERECHT24_`. In der Astro-Konfiguration darf nicht auf ein automatisches Laden dieser Dateien vertraut werden.
 - Bereits gesetzte Umgebungsvariablen haben Vorrang vor Werten aus `.env`-Dateien. Nur die beiden benötigten Schlüssel übernehmen.
@@ -169,7 +169,7 @@ export default defineConfig({
 });
 ```
 
-Die Integration lädt `ERECHT24_API_KEY` und `ERECHT24_PLUGIN_KEY` nach den oben beschriebenen Regeln aus der Umgebung und lokalen `.env`-Dateien.
+Die Integration lädt `ERECHT24_API_KEY` (und ein optionales `ERECHT24_PLUGIN_KEY`) nach den oben beschriebenen Regeln aus der Umgebung und lokalen `.env`-Dateien.
 
 Für eine Website mit deutschen und englischen Rechtstextseiten wird `languages` auf `["de", "en"]` gesetzt. Beide Sprachfassungen stammen aus demselben Abruf je Dokumenttyp.
 
