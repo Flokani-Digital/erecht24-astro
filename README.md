@@ -1,49 +1,34 @@
 # Astro Rechtstexte für eRecht24
 
-Das NPM-Paket `@flokani.digital/erecht24-astro` ist eine Astro-Integration von Flokani zum Abruf von Impressum, Datenschutzerklärung und optional Social-Media-Datenschutz bei eRecht24. Die Texte werden beim Build geladen und als statisches HTML ausgegeben.
+`@flokani.digital/erecht24-astro` ist eine Astro-Integration, die Impressum, Datenschutzerklärung und optional die Datenschutzerklärung für Social Media aus deinem [eRecht24](https://www.e-recht24.de/)-Projekt beim Build abruft und als statisches HTML ausgibt. Im Browser deiner Besucher findet kein API-Aufruf statt.
 
-| Verwendung | Name |
-|---|---|
-| Produkt | Astro Rechtstexte für eRecht24 |
-| NPM-Paket | `@flokani.digital/erecht24-astro` |
-| NPM-Organisation | `flokani.digital` |
-| GitHub-Repository | [Flokani-Digital/erecht24-astro](https://github.com/Flokani-Digital/erecht24-astro) |
-| Anbieter | Flokani GmbH |
+> **Status:** Das Paket ist noch nicht veröffentlicht (`private`, Lizenz offen). Bis zur Veröffentlichung kann es als lokales Archiv installiert werden, siehe [Installation](#installation).
+>
+> Kein offizielles Produkt von eRecht24. Die Rechtstexte stammen unverändert von eRecht24; für ihre Vollständigkeit, Aktualität und korrekte Einbindung bleibt der Betreiber der Website verantwortlich.
 
-**Entwicklungsstand:** erste Implementierung mit simulierten API-Antworten. NPM-Account und Organisation `flokani.digital` sind angelegt. Das Paket ist noch nicht veröffentlicht und bleibt bis zur Klärung der Lizenz und Prüfung der Veröffentlichungsberechtigung `private`. Ein Live-Test mit den öffentlichen Demo-Schlüsseln von eRecht24 läuft erfolgreich (`npm run test:live`). Der eigene Flokani-Developer-Key fehlt noch und wird nach Erhalt in `src/plugin-key.ts` eingetragen. Der vollständige Umfang ist im [Projektplan](Projektplan.md) beschrieben.
+## Voraussetzungen
 
-## Lokal entwickeln
+- Astro `7.x` (Peer-Abhängigkeit: `astro ^7.0.0`, `vite ^8.0.13`)
+- Node.js `^22.12.0 || ^24.0.0`
+- Ein eRecht24-Projekt mit angelegten Rechtstexten und dessen **Projekt-API-Key** (im eRecht24-Projekt-Manager erzeugen)
 
-Wir verwenden **Node.js 24 LTS**, im Projekt festgelegt auf **24.21.0**. `fnm` liest diese Version aus `.node-version`. Die globale Standardversion muss dafür nicht geändert werden.
+## Installation
+
+Nach der Veröffentlichung:
 
 ```sh
-fnm install
-fnm use
-npm ci
-npm run dev
+npm install @flokani.digital/erecht24-astro
 ```
 
-Die Demo ist unter `http://127.0.0.1:4337/` erreichbar. Sie verwendet ausschließlich künstliche Rechtstexte und benötigt keine Zugangsdaten. `Ctrl+C` beendet Astro und den lokalen API-Testserver. Die Mock-Umleitung gehört nur zum Demo-/Testprozess und wird nicht mit dem Paket ausgeliefert.
-
-| Befehl | Zweck |
-|---|---|
-| `npm run build` | TypeScript-Paket nach `dist/` kompilieren |
-| `npm run check` | TypeScript prüfen |
-| `npm test` | API-, Inhalts-, Konfigurations-, Retry- und Timeout-Tests |
-| `npm run test:integration` | Paketarchiv installieren; Astro-Builds, Befehle, Umgebungsvariablen und Ausgaben prüfen |
-| `npm run test:live` | Optional: echte eRecht24-API mit den öffentlichen Demo-Schlüsseln abfragen |
-| `npm run dev` | Statische Demo mit simuliertem eRecht24-Server starten |
-| `npm pack` | Lokales NPM-Archiv erstellen; veröffentlicht nichts |
-
-Die Integrationstests erzeugen zwei getrennte Projekte unter `.test-work/`. Sie installieren das Paketarchiv mit den lokal verwendeten Astro-Versionen aus dem NPM-Cache und starten kurzzeitig lokale HTTP-Server. Vorher `npm ci` ausführen. Echte eRecht24-Aufrufe sind im Testprozess gesperrt.
-
-## In ein Astro-Projekt einbinden
-
-Bis zur Veröffentlichung das mit `npm pack` erzeugte Archiv im Zielprojekt installieren:
+Bis dahin aus einem lokal erzeugten Archiv (`npm pack` im Paket-Repository):
 
 ```sh
 npm install /pfad/zum/flokani.digital-erecht24-astro-0.1.0.tgz
 ```
+
+## Schnellstart
+
+**1. Integration eintragen**
 
 ```js
 // astro.config.mjs
@@ -52,33 +37,20 @@ import rechtstexte from '@flokani.digital/erecht24-astro';
 
 export default defineConfig({
   trailingSlash: 'always',
-  integrations: [rechtstexte({
-    documents: ['imprint', 'privacyPolicy'],
-    languages: ['de'],
-  })],
+  integrations: [rechtstexte()],
 });
 ```
 
-Beide Optionen sind optional. Ohne Angaben werden Impressum und Datenschutzerklärung auf Deutsch geladen. Weitere Werte:
+Ohne Optionen werden Impressum und Datenschutzerklärung auf Deutsch geladen.
 
-| Option | Erlaubte Werte |
-|---|---|
-| `documents` | `imprint`, `privacyPolicy`, `privacyPolicySocialMedia` |
-| `languages` | `de`, `en` |
-
-Social-Media-Datenschutz wird nur nach ausdrücklicher Auswahl abgerufen. Alle ausgewählten Dokumente müssen in allen ausgewählten Sprachen vorliegen. Duplikate werden zusammengefasst; leere Listen und unbekannte Werte werden abgewiesen.
-
-### Zugangsdaten
-
-Im **Astro-Zielprojekt** eine nicht versionierte `.env.local` anlegen, entsprechend der Vorlage `.env.example`:
+**2. API-Key hinterlegen**
 
 ```dotenv
-ERECHT24_API_KEY=projekt-api-key
+# .env.local (nicht versionieren)
+ERECHT24_API_KEY=dein-projekt-api-key
 ```
 
-Den Projekt-API-Key erzeugt der Kunde im eRecht24-Projekt-Manager. Er ist geheim und gehört im Deployment-System in ein Secret. Den Developer-Key (`eRecht24-plugin-key`) vergibt eRecht24 an Flokani. Er identifiziert das Plugin, ist im Paket enthalten und kein Geheimnis. `ERECHT24_PLUGIN_KEY` ist deshalb nur für eigene Integrationen mit eigenem Developer-Key nötig und überschreibt dann den eingebauten Wert. Die Integration berücksichtigt Vites tatsächlichen `mode` und `envDir`; bereits gesetzte Umgebungsvariablen haben Vorrang. `vite.envDir: false` deaktiviert das Laden der Dateien. Die Variablen erhalten keinen `PUBLIC_`-Präfix.
-
-### Seiten und Komponente
+**3. Seite anlegen**
 
 ```astro
 ---
@@ -90,71 +62,46 @@ export const prerender = true;
 ---
 
 <Layout title="Impressum">
-  <LegalText type="imprint" lang="de" class="legal-text" />
+  <LegalText type="imprint" class="legal-text" />
 </Layout>
 ```
 
-Entsprechend auf `/datenschutz/` den Typ `privacyPolicy` und optional auf `/datenschutz-social-media/` den Typ `privacyPolicySocialMedia` verwenden. Impressum und Datenschutzerklärung bringen ein eigenes `<h1>` mit, deshalb hier keine zweite H1 setzen. Der Social-Media-Text beginnt dagegen ohne H1 mit `<h3>`. Die Seite braucht also eine eigene Überschrift, alternativ den Text unter der Datenschutzerklärung einbinden. Bei `languages: ['de', 'en']` kann eine englische Seite `lang="en"` setzen. Ohne `lang` gilt die erste konfigurierte Sprache. Nicht konfigurierte Dokumente oder Sprachen erzeugen einen Fehler.
+Für die Datenschutzerklärung dasselbe mit `type="privacyPolicy"`.
 
-**Auch in SSR-Projekten benötigen Rechtstextseiten `export const prerender = true`.** Die Komponente weist eine dynamische Ausgabe im Produktionsbetrieb beim Rendern zurück. Sie fügt Seiten oder Layouts nicht automatisch hinzu.
-
-Das Original-HTML wird unverändert mit `set:html` innerhalb eines `<div>` mit der gewünschten Klasse und dem Sprach-Attribut ausgegeben. eRecht24 ist die feste vertrauenswürdige HTML-Quelle; das Paket bereinigt oder verändert deren Inhalte nicht. Vor dem Produktiveinsatz das echte HTML mit dem eigenen Layout und gegebenenfalls dessen Content Security Policy prüfen.
-
-Stile müssen die eingefügten Elemente erreichen, beispielsweise im Projektlayout:
-
-```astro
-<style>
-  :global(.legal-text h2) { margin-top: 2rem; }
-  :global(.legal-text a) { text-decoration: underline; }
-</style>
-```
-
-## Abruf und Fehlerverhalten
-
-| Astro-Befehl | Verhalten |
-|---|---|
-| `build` | Frischer Abruf aller konfigurierten Dokumente; einmal je Typ, DE/EN gemeinsam |
-| `dev` | Abruf beim ersten Bedarf; Wiederverwendung bis zum Neustart der Integrationsinstanz |
-| `sync`, `check` | Typen und Konfiguration ohne Zugangsdaten oder API-Abruf prüfen |
-| `preview` | Bereits gebaute Seiten ohne erneuten Abruf ausliefern |
-
-Fehlende Schlüssel, Dokumente, Sprachinhalte, unbrauchbares HTML oder ungültige Antworten brechen den Build ab. Bei Netzwerkfehlern, Timeouts und HTTP 429/500/502/503/504 sind maximal drei Versuche vorgesehen. Ein Versuch hat 10 Sekunden Zeit einschließlich Response-Body. Wiederholungen warten 1 und 2 Sekunden; `Retry-After` bei 429 kann die Wartezeit bis auf 10 Sekunden verlängern. Größere Vorgaben führen zum Abbruch.
-
-API-Warnungen erscheinen als lesbarer Text im Astro-Log; bekannte Schlüsselwerte werden entfernt. Warnungen allein verhindern den Build nicht. Schlüssel werden ausschließlich als Request-Header an die festgelegte HTTPS-API übertragen. Es gibt keinen stillen Rückgriff auf alte Texte und keinen API-Aufruf im Browser oder beim späteren Seitenbesuch.
-
-Änderungen in eRecht24 werden erst durch einen neuen erfolgreichen Build und ein Deployment sichtbar. Regelmäßige Builds sowie sichtbare Fehlerbenachrichtigungen sind Aufgabe des jeweiligen Deployment-Systems. Ein fehlgeschlagener Build soll das letzte erfolgreiche Deployment bestehen lassen.
-
-## Kompatibilität und Prüfung
-
-Zielbereich: Astro 7.x, Node `^22.12.0 || ^24.0.0`. Die Entwicklungsabhängigkeiten verwenden Astro 7.3.5 und `@astrojs/node` 11.1.6. Details zu tatsächlich geprüften Versionen und verbleibenden Prüfungen stehen im [Projektplan](Projektplan.md).
-
-Die automatisierten Tests prüfen insbesondere:
-
-- Unveränderte DE-/EN-Inhalte in statischen Seiten und in vorgerenderten Seiten eines SSR-Projekts.
-- Installation aus dem tatsächlichen NPM-Archiv, Komponentenexport und Typ-Injektion mit `astro check`.
-- Einen Abruf pro Dokument, gemeinsame laufende Dev-Anfragen und erneuten Abruf nach Neustart.
-- Fehler, leere Texte, Warnungen, Wiederholungen und einen hängenden HTTP-Response-Body.
-- Abweichendes Env-Verzeichnis, Ausführungsmodus und Vorrang der Prozessumgebung.
-- Keine künstlichen Zugangsschlüssel in Paketdateien, Logs und vollständigen Build-Verzeichnissen, einschließlich SSR-Dateien.
-- Interne Links mit abschließendem Slash.
-
-Zum Test einer anderen Astro-Version können ausschließlich für den Testlauf Versionen vorgegeben werden. Dabei darf NPM fehlende Pakete aus der Registry nachladen:
+**4. Bauen**
 
 ```sh
-RECHTSTEXTE_TEST_ASTRO_VERSION=7.0.0 \
-RECHTSTEXTE_TEST_ADAPTER_VERSION=11.0.0 \
-npm run test:integration
+npx astro build
 ```
 
-Visuelle Browserprüfung, Live-Test mit dem eigenen Developer-Key und Prüfung im ersten echten Flokani-Projekt stehen aus.
+Der Build ruft die Texte ab und schreibt sie in die statischen Seiten. Fehlt der Key oder ein Text, bricht der Build mit einer verständlichen Meldung ab.
 
-## Geplant
+## Dokumentation
 
-Push-Benachrichtigungen von eRecht24: Ein serverseitiger Endpunkt prüft das Push-Secret, beantwortet `ping` und löst über den Deploy-Hook des Hosters einen neuen Build aus. Die Rechtstextseiten bleiben dabei vorgerendert. Für rein statische Projekte ist ein externer Relay vorgesehen (z. B. n8n). Dazu kommt eine CLI zum Registrieren der Push-Clients. Dies ist nicht Teil der ersten Version. Die Demo-Texte sind keine gültigen Rechtstexte.
+| Thema | Inhalt |
+|---|---|
+| [Konfiguration](docs/konfiguration.md) | Alle Optionen, Props der Komponente und Standardwerte |
+| [Zugangsdaten](docs/zugangsdaten.md) | API-Key und Plugin-Key, `.env`, CI und Deployment |
+| [Seiten und Komponente](docs/seiten-und-komponente.md) | Seiten anlegen, mehrsprachig, SSR, Styling, Social Media |
+| [Styling](docs/styling.md) | Struktur des HTML, eigenes CSS, Tailwind Typography, Dark Mode |
+| [Abruf und Fehlerverhalten](docs/abruf-und-fehler.md) | Verhalten je Astro-Befehl, Wiederholungen, Timeouts, Aktualisierung |
+| [Fehlerbehebung](docs/fehlerbehebung.md) | Fehlermeldung, Ursache, Lösung |
+
+Zum Mitentwickeln siehe [CONTRIBUTING.md](CONTRIBUTING.md).
+
+## Wichtig zu wissen
+
+- **Aktualisierung nur per Build:** Änderungen in eRecht24 erscheinen erst nach einem neuen erfolgreichen Build und Deployment. Regelmäßige Builds sind Aufgabe deines Deployment-Systems.
+- **Kein stiller Fallback:** Es gibt keinen Rückgriff auf alte Texte. Ein fehlgeschlagener Build lässt das letzte erfolgreiche Deployment bestehen.
+- **HTML unverändert:** Der Text wird nicht bereinigt oder verändert. Prüfe das echte HTML mit deinem Layout und deiner Content Security Policy.
+- **Keys:** Der API-Key ist geheim und gehört in ein Secret. Der Plugin-Key ist im Paket enthalten und kein Geheimnis.
+
+## Ausblick
+
+Geplant sind Push-Benachrichtigungen von eRecht24, die über einen Deploy-Hook automatisch einen neuen Build auslösen. Das ist nicht Teil der ersten Version.
 
 ## Quellen
 
 - [eRecht24 OpenAPI](https://api.e-recht24.de/v2openapi.json)
 - [Astro Integration API](https://docs.astro.build/en/reference/integrations-reference/)
 - [Astro: Umgebungsvariablen](https://docs.astro.build/en/guides/environment-variables/)
-- [Node.js-Veröffentlichungen und LTS-Status](https://nodejs.org/en/about/previous-releases)
