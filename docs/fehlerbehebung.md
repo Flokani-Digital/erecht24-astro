@@ -19,6 +19,8 @@ Alle Meldungen beginnen mit `[@flokani.digital/erecht24-astro]`.
 | `<typ> (en): Rechtstext fehlt oder ist leer.` | Die Sprache ist im Projekt nicht gepflegt | Text in eRecht24 ergänzen oder `languages` anpassen |
 | `<typ>: Netzwerkfehler oder Timeout nach 3 Versuchen.` | Keine Verbindung oder API zu langsam | Netzwerk des Build-Servers prüfen, Build erneut starten |
 | `Abruf fehlgeschlagen (HTTP 429/5xx)` | API überlastet oder Rate-Limit | Später erneut bauen. Verlangt `Retry-After` mehr als 10 s, bricht der Build ab |
+| `eRecht24 nicht erreichbar, Rechtstexte vom <Datum> aus dem Cache verwendet.` (Warnung) | `fallbackToCache` hat einen Ausfall überbrückt | Build läuft weiter; prüfen, ob eRecht24 wieder erreichbar ist und neu bauen |
+| `Kein nutzbarer Cache: …` | Ausfall bei aktivem `fallbackToCache`, aber kein oder abgelaufener Stand, beschädigte Datei oder abweichende Auswahl | Später neu bauen. Cache-Verzeichnis in CI erhalten, `maxAgeDays` prüfen |
 | `<typ>: Die API-Antwort enthält kein gültiges JSON.` / `Unerwartete Antwortstruktur.` | Ungültige Antwort, etwa durch einen Proxy | Netzwerkpfad prüfen, Fehler an eRecht24 melden |
 | `<typ>: Die API-Antwort enthält vertrauliche Zugangsdaten.` | Der Rechtstext enthält den Projekt-API-Key | Text in eRecht24 prüfen; Key gegebenenfalls neu erzeugen |
 

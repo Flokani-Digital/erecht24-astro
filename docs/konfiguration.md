@@ -6,15 +6,17 @@
 rechtstexte({
   documents: ['imprint', 'privacyPolicy'],
   languages: ['de'],
+  fallbackToCache: { maxAgeDays: 7 }, // optional
 })
 ```
 
-Beide Optionen sind optional. Weitere Optionen gibt es nicht; unbekannte Schlüssel brechen mit einem Fehler ab.
+Alle Optionen sind optional. Weitere Optionen gibt es nicht; unbekannte Schlüssel brechen mit einem Fehler ab.
 
 | Option | Werte | Standard | Bedeutung |
 |---|---|---|---|
 | `documents` | `'imprint'`, `'privacyPolicy'`, `'privacyPolicySocialMedia'` | `['imprint', 'privacyPolicy']` | Welche Rechtstexte beim Build geladen werden |
 | `languages` | `'de'`, `'en'` | `['de']` | In welchen Sprachen jeder gewählte Text vorliegen muss |
+| `fallbackToCache` | `true` oder `{ maxAgeDays: 1–30 }` | aus (strikt) | Bei vorübergehendem eRecht24-Ausfall im **Build** den letzten erfolgreichen Stand verwenden, siehe [Abruf und Fehlerverhalten](abruf-und-fehler.md#ausfall-fallback-auf-den-letzten-stand) |
 
 Regeln:
 

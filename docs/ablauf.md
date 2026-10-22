@@ -19,6 +19,7 @@ flowchart TB
         s5["5 Snapshot im virtuellen Modul<br/>nur HTML, keine Keys"]
         s6["6 Prerender<br/>LegalText liest das Modul, set:html"]
         fail["Fehler: Build bricht ab<br/>kein Ersatztext"]
+        cache[("Cache im Astro-cacheDir<br/>nur mit fallbackToCache")]
     end
 
     api[("eRecht24 API<br/>api.e-recht24.de/v2")]
@@ -35,7 +36,11 @@ flowchart TB
     s3 --> s4
     s4 -- ok --> s5 --> s6
     s4 -- Fehler --> fail
-    s3 -- "dauerhafter Fehler" --> fail
+    s3 -- "dauerhafter Fehler (401, 404, ...)" --> fail
+    s3 -- "Ausfall (503, Timeout) mit fallbackToCache" --> cache
+    cache -- "Stand gültig, Warnung" --> s5
+    cache -- "kein / zu alter Stand" --> fail
+    s4 -- "Erfolg: Stand speichern" --> cache
     pages -- import --> s6
     s6 --> html --> deploy --> visitor
 ```
@@ -70,7 +75,7 @@ sequenceDiagram
 
 | Befehl | Abruf | Keys nötig |
 |---|---|---|
-| `astro build` | frisch, alle Dokumente, einmal je Dokumenttyp | ja |
+| `astro build` | frisch, alle Dokumente, einmal je Dokumenttyp; bei Ausfall optional letzter Stand | ja |
 | `astro dev` | beim ersten Rendern, danach Cache bis zum Neustart | ja |
 | `astro sync`, `astro check` | nein | nein |
 | `astro preview` | nein (liefert den vorhandenen Build) | nein |

@@ -24,6 +24,27 @@ Das gilt auch mit Node- und Cloudflare-Adapter in deren Standardkonfiguration. I
 - Bei `429` wird `Retry-After` beachtet (Sekunden oder HTTP-Datum). Verlangt der Server mehr als 10 Sekunden, bricht der Abruf ab.
 - Alle anderen HTTP-Fehler (zum Beispiel `401`, `404`) und Weiterleitungen werden nicht wiederholt.
 
+## Ausfall: Fallback auf den letzten Stand
+
+Standardmäßig bricht ein Build bei einem Ausfall von eRecht24 ab (zum Beispiel bei einer Wartung mit HTTP 503). Mit `fallbackToCache` kannst du das für **vorübergehende** Ausfälle abmildern:
+
+```js
+rechtstexte({ fallbackToCache: { maxAgeDays: 7 } }) // oder fallbackToCache: true (= 7 Tage)
+```
+
+So funktioniert es:
+
+- Jeder Build ruft weiterhin frisch ab. Nach einem vollständig erfolgreichen Abruf speichert das Paket die Texte in `<cacheDir>/erecht24-astro/snapshot.json`. Standard ist `node_modules/.astro/`; Astro-Option `cacheDir`. Die Datei enthält nur Rechtstexte und den Abrufzeitpunkt, keine Schlüssel.
+- Schlägt der Abruf nach allen Wiederholungen **vorübergehend** fehl (Netzwerkfehler, Timeout, HTTP `429`, `500`, `502`, `503`, `504`), verwendet der Build den gespeicherten Stand und gibt eine **Warnung** mit dem Datum aus.
+- Ist kein Stand vorhanden, er ist älter als `maxAgeDays`, passt nicht zu `documents`/`languages` oder ist beschädigt, bricht der Build ab. Die Meldung nennt den Grund.
+- **Kein** Fallback bei `401`, `403`, `404`, fehlendem Key, ungültiger Antwort, leerem oder fehlendem Text. Das sind Konfigurations- oder Inhaltsfehler.
+- Nur im `build`. `astro dev` ruft immer live ab und zeigt Fehler offen an.
+
+Wichtig:
+
+- Ein Fallback kann **veraltete Rechtstexte** veröffentlichen. Wähle `maxAgeDays` bewusst kurz und beachte die Build-Warnungen im Deployment-System. Die Verantwortung für aktuelle Texte bleibt beim Betreiber.
+- In CI und beim Hosting wirkt der Fallback nur, wenn das Cache-Verzeichnis zwischen den Builds erhalten bleibt. Ohne erhaltenen Cache gibt es nach einem frischen Checkout keinen Stand zum Zurückfallen. Prüfe das für deinen Anbieter (bei Cloudflare Pages ist es nicht getestet).
+
 ## Wann bricht der Build ab?
 
 - `ERECHT24_API_KEY` fehlt oder enthält ungültige Zeichen
@@ -31,7 +52,7 @@ Das gilt auch mit Node- und Cloudflare-Adapter in deren Standardkonfiguration. I
 - Ein Text fehlt in einer gewählten Sprache oder ist leer
 - Die API-Antwort ist kein gültiges JSON oder hat eine unerwartete Struktur
 - Die Antwort enthält den Projekt-API-Key im Text
-- Netzwerkfehler oder Timeout nach 3 Versuchen
+- Netzwerkfehler oder Timeout nach 3 Versuchen (ohne `fallbackToCache` oder ohne nutzbaren Stand)
 
 Es gibt **keinen stillen Rückgriff** auf alte Texte. Ein fehlgeschlagener Build soll das letzte erfolgreiche Deployment bestehen lassen; dafür sorgt dein Deployment-System.
 
