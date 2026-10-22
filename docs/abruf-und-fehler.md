@@ -5,11 +5,15 @@
 | Astro-Befehl | Verhalten |
 |---|---|
 | `build` | Frischer Abruf aller konfigurierten Dokumente, einmal je Dokumenttyp; Deutsch und Englisch kommen aus derselben Antwort |
-| `dev` | Abruf beim ersten Bedarf, danach Wiederverwendung bis zum Neustart. Ein fehlgeschlagener Abruf wird beim nächsten Request erneut versucht |
+| `dev` | Abruf beim ersten Bedarf, danach Wiederverwendung bis zum Neustart; gleichzeitige Seiten teilen sich den laufenden Abruf |
 | `sync`, `check` | Prüfen Typen und Konfiguration, **ohne** Zugangsdaten und ohne API-Abruf |
 | `preview` | Liefert bereits gebaute Seiten aus, ohne erneuten Abruf |
 
 Die Dokumente werden nacheinander abgerufen. Bei einem dauerhaften Fehler stoppt der Abruf sofort.
+
+In `dev` wird ein erfolgreicher Abruf für die Lebensdauer des Servers gespeichert. Nach einem Fehler (zum Beispiel falscher Key) den Fehler beheben und den Dev-Server neu starten; ein Neustart lädt außerdem einen frischen Stand.
+
+Das gilt auch mit Node- und Cloudflare-Adapter in deren Standardkonfiguration. In Produktion werden ausschließlich die beim Build eingebetteten Texte ausgegeben; ein Abruf zur Laufzeit findet nicht statt.
 
 ## Wiederholungen und Zeitlimits
 
@@ -42,4 +46,4 @@ eRecht24 kann zu einem Dokument Hinweise (`warnings`) mitliefern, etwa zur Einbi
 - regelmäßige Builds (zum Beispiel täglich oder wöchentlich per Zeitplan)
 - sichtbare Benachrichtigungen bei fehlgeschlagenen Builds
 
-Es findet kein API-Aufruf im Browser und beim Seitenbesuch statt.
+In Produktion findet kein API-Aufruf im Browser oder beim Seitenbesuch statt.

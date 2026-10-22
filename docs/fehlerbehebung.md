@@ -6,7 +6,7 @@ Alle Meldungen beginnen mit `[@flokani.digital/erecht24-astro]`.
 
 | Meldung | Ursache | Lösung |
 |---|---|---|
-| `ERECHT24_API_KEY wird für den Abruf benötigt.` | Variable fehlt im Build | In `.env.local` oder als Secret setzen, siehe [Zugangsdaten](zugangsdaten.md). Bei `vite.envDir: false` in die Prozessumgebung |
+| `ERECHT24_API_KEY wird für den Abruf benötigt.` | Variable fehlt beim Build oder beim ersten Rendern in `dev` | In `.env.local` oder als Secret setzen, siehe [Zugangsdaten](zugangsdaten.md). Bei `vite.envDir: false` in die Prozessumgebung |
 | `Zugangsschlüssel enthalten ungültige Zeichen.` | Leerzeichen, Zeilenumbruch oder Nicht-ASCII-Zeichen im Wert | Nur den reinen Key ohne Leerraum eintragen, beim Kopieren auf versteckte Zeichen achten |
 | `Das Paket enthält noch keinen eRecht24-Developer-Key.` | Kein eingebauter Plugin-Key im Paket | `ERECHT24_PLUGIN_KEY` mit eigenem Developer-Key setzen |
 
@@ -37,7 +37,7 @@ Alle Meldungen beginnen mit `[@flokani.digital/erecht24-astro]`.
 |---|---|---|
 | `Der Dokumenttyp "…" wurde nicht in documents konfiguriert.` | Komponente nutzt einen Typ, der nicht geladen wird | Typ in `documents` aufnehmen |
 | `Die Sprache "…" wurde für … nicht in languages konfiguriert oder der Text fehlt.` | `lang` passt nicht zu `languages` | `languages` ergänzen oder `lang` korrigieren |
-| `Rechtstextseiten benötigen export const prerender = true.` | Seite wird dynamisch gerendert (SSR) | `export const prerender = true;` in die Seite |
+| `Rechtstextseiten benötigen export const prerender = true.` | Rechtstextseite wird in Produktion dynamisch gerendert (SSR); der Build kann zuvor erfolgreich gewesen sein | `export const prerender = true;` in jede Rechtstextseite setzen, danach neu bauen und deployen |
 | `Inhalte sind vor dem Rendern noch nicht geladen.` | Seite wird außerhalb von `build` oder `dev` gerendert | Über `astro build` oder `astro dev` starten |
 | `Rechtstexte dürfen nur im Astro-Frontmatter importiert werden.` | Import in Client-Code | Nur in `.astro`-Frontmatter oder serverseitig verwenden |
 
@@ -47,3 +47,7 @@ Alle Meldungen beginnen mit `[@flokani.digital/erecht24-astro]`.
 - **Stile greifen nicht:** `:global(.deine-klasse …)` verwenden, siehe [Styling](styling.md).
 - **Social-Media-Text ohne Überschrift:** Er beginnt mit `<h3>`; der Seite eine eigene Überschrift geben.
 - **Text veraltet:** Neuen Build und Deployment auslösen, siehe [Abruf und Fehlerverhalten](abruf-und-fehler.md).
+
+## Abruf in der Entwicklung fehlgeschlagen
+
+Nach Behebung der Ursache den Dev-Server neu starten. Erfolgreich geladene Texte bleiben bis dahin erhalten; ein Neustart lädt auch einen frischen Stand.

@@ -68,6 +68,8 @@ export const prerender = true;
 
 Für die Datenschutzerklärung dasselbe mit `type="privacyPolicy"`.
 
+In SSR-Projekten braucht **jede Rechtstextseite** `export const prerender = true;`, auch mit Node- oder Cloudflare-Adapter. Ohne diese Angabe kann der Build erfolgreich sein; beim dynamischen Rendern in Produktion verweigert die Komponente die Ausgabe. Die Standardkonfiguration des Cloudflare-Adapters mit `workerd` wird unterstützt; ein Override auf `prerenderEnvironment: 'node'` ist nicht nötig.
+
 **4. Bauen**
 
 ```sh
@@ -87,7 +89,7 @@ Der Build ruft die Texte ab und schreibt sie in die statischen Seiten. Fehlt der
 | [Abruf und Fehlerverhalten](docs/abruf-und-fehler.md) | Verhalten je Astro-Befehl, Wiederholungen, Timeouts, Aktualisierung |
 | [Fehlerbehebung](docs/fehlerbehebung.md) | Fehlermeldung, Ursache, Lösung |
 
-Zum Mitentwickeln siehe [CONTRIBUTING.md](CONTRIBUTING.md).
+Zum Mitentwickeln siehe [CONTRIBUTING.md](https://github.com/Flokani-Digital/erecht24-astro/blob/HEAD/CONTRIBUTING.md).
 
 ## Wichtig zu wissen
 
