@@ -41,3 +41,19 @@ test('Dev: fehlgeschlagener Abruf wird beim nächsten Request erneut versucht', 
   await plugin.load(resolvedId);
   assert.equal(calls, 1, 'Erfolgreicher Abruf wird wiederverwendet');
 });
+
+test('Client-Import wird bei Auflösung und Laden zurückgewiesen; sync bleibt offline', async () => {
+  let plugin;
+  const integration = rechtstexte();
+  integration.hooks['astro:config:setup']({
+    config: { root: pathToFileURL(tmpdir() + '/') }, command: 'sync',
+    updateConfig: ({ vite }) => { [plugin] = vite.plugins; }, logger: { warn: () => {} },
+  });
+  const client = { environment: { name: 'client' } };
+  assert.throws(() => plugin.resolveId.call(client, 'virtual:flokani-erecht24-astro'), /Frontmatter/);
+  await assert.rejects(plugin.load.call(client, resolvedId), /Frontmatter/);
+  const code = await plugin.load.call({ environment: { name: 'prerender' } }, resolvedId);
+  const { default: content } = await import('data:text/javascript,' + encodeURIComponent(code));
+  assert.deepEqual(content, { languages: [], documents: {} });
+  assert.ok(!code.includes('fetch('));
+});

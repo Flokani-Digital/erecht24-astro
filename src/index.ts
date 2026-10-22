@@ -8,25 +8,20 @@ export type { RechtstexteOptions, DocumentType, Language, ContentSnapshot } from
 
 const moduleId = 'virtual:flokani-erecht24-astro';
 const resolvedId = '\0' + moduleId;
+const clientError = '[@flokani.digital/erecht24-astro] Rechtstexte dürfen nur im Astro-Frontmatter importiert werden.';
 
 export default function rechtstexte(options: RechtstexteOptions = {}): AstroIntegration {
   const selection = normalizeOptions(options);
-  let snapshot: ContentSnapshot | undefined;
-  let pending: Promise<ContentSnapshot> | undefined;
   let read: (() => Promise<ContentSnapshot>) | undefined;
-  let mode = 'production';
-  let envDir: string | false = '';
-  let command = '';
 
   return {
     name: '@flokani.digital/erecht24-astro',
     hooks: {
-      'astro:config:setup': ({ config, command: currentCommand, updateConfig, logger }) => {
-        command = currentCommand;
-        snapshot = undefined;
-        pending = undefined;
-        envDir = fileURLToPath(config.root);
-        mode = command === 'dev' ? 'development' : 'production';
+      'astro:config:setup': ({ config, command, updateConfig, logger }) => {
+        let snapshot: ContentSnapshot | undefined;
+        let pending: Promise<ContentSnapshot> | undefined;
+        let mode = command === 'dev' ? 'development' : 'production';
+        let envDir: string | false = fileURLToPath(config.root);
         read = () => {
           pending ??= (async () => {
             const env = envDir === false ? {} : loadEnv(mode, envDir, 'ERECHT24_');
@@ -37,7 +32,6 @@ export default function rechtstexte(options: RechtstexteOptions = {}): AstroInte
             snapshot = await fetchDocuments(selection, credentials, (message) => logger.warn(message));
             return snapshot;
           })().catch((error: unknown) => {
-            // Allow the next dev request to retry after fixing the cause.
             pending = undefined;
             throw error;
           });
@@ -53,19 +47,18 @@ export default function rechtstexte(options: RechtstexteOptions = {}): AstroInte
           },
           resolveId(id) {
             if (id !== moduleId) return;
-            if (this.environment?.name === 'client') {
-              throw new Error('[@flokani.digital/erecht24-astro] Rechtstexte dürfen nur im Astro-Frontmatter importiert werden.');
-            }
+            if (this.environment?.name === 'client') throw new Error(clientError);
             return resolvedId;
           },
           async load(id) {
             if (id !== resolvedId) return;
+            if (this.environment?.name === 'client') throw new Error(clientError);
+            // In dev the first render fetches; build fetches earlier in astro:build:start.
             if (command === 'dev') await read!();
-            if (!snapshot) {
-              if (command === 'sync') return 'export default { languages: [], documents: {} };';
+            if (!snapshot && command !== 'sync') {
               throw new Error('[@flokani.digital/erecht24-astro] Inhalte sind vor dem Rendern noch nicht geladen.');
             }
-            return `export default ${JSON.stringify(snapshot)};`;
+            return `export default ${JSON.stringify(snapshot ?? { languages: [], documents: {} })};`;
           },
         };
         updateConfig({ vite: { plugins: [plugin] } });

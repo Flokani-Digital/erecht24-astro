@@ -21,6 +21,8 @@ export const texts = {
 export async function createMockServer() {
   const calls = [];
   let scenario = 'success';
+  let gate;
+  const sockets = new Set();
   const server = createServer((request, response) => {
     const type = request.url?.split('/').at(-1);
     calls.push({ type, headers: request.headers });
@@ -37,7 +39,15 @@ export async function createMockServer() {
     if (scenario === 'missing-en') data.html_en = '';
     if (scenario === 'empty') data.html_de = '<p>&nbsp;&#160;\u200b</p>';
     if (scenario === 'warning') data.warnings = `<p>Bitte prüfen: ${apiKey} ${pluginKey}</p>`;
-    response.end(JSON.stringify(data));
+    const send = () => { if (!response.destroyed) response.end(JSON.stringify(data)); };
+    if (gate) {
+      gate.reached();
+      gate.promise.then(send);
+    } else send();
+  });
+  server.on('connection', (socket) => {
+    sockets.add(socket);
+    socket.once('close', () => sockets.delete(socket));
   });
   await new Promise((resolve, reject) => {
     server.once('error', reject);
@@ -46,7 +56,28 @@ export async function createMockServer() {
   return {
     origin: `http://127.0.0.1:${server.address().port}`,
     calls,
-    reset(next = 'success') { calls.length = 0; scenario = next; },
-    close() { return new Promise((resolve, reject) => server.close((error) => error ? reject(error) : resolve())); },
+    // Change a response without erasing the evidence from an earlier request.
+    setScenario(next) { scenario = next; },
+    holdSuccess() {
+      if (gate) throw new Error('Ein Mock-Gate ist bereits aktiv.');
+      let release;
+      let reached;
+      const promise = new Promise((resolve) => { release = resolve; });
+      const entered = new Promise((resolve) => { reached = resolve; });
+      gate = { promise, reached, release };
+      return { entered, release() { gate = undefined; release(); } };
+    },
+    reset(next = 'success') {
+      if (gate) throw new Error('Mock-Gate vor reset freigeben.');
+      calls.length = 0; scenario = next;
+    },
+    close() {
+      // Also bound cleanup when a failed assertion leaves a response gated.
+      gate?.release();
+      gate = undefined;
+      for (const socket of sockets) socket.destroy();
+      server.closeAllConnections();
+      return new Promise((resolve, reject) => server.close((error) => error ? reject(error) : resolve()));
+    },
   };
 }
