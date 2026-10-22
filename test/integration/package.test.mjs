@@ -390,6 +390,52 @@ test('Gepacktes Paket in unabhängigen Astro- und workerd-Projekten', { timeout:
     } finally { await server.stop(); }
   });
 
+  for (const kind of targets) await runCase(`${kind}: fallbackToCache überbrückt Wartung (503), aber keine Konfigurationsfehler`, async () => {
+    const configPath = join(dirs[kind], 'astro.config.mjs');
+    const original = await readFile(configPath, 'utf8');
+    const cacheFile = join(dirs[kind], 'node_modules/.astro/erecht24-astro/snapshot.json');
+    await rm(cacheFile, { force: true });
+    await writeFile(configPath, original.replace("languages: ['de', 'en'],", "languages: ['de', 'en'], fallbackToCache: { maxAgeDays: 7 },"));
+    try {
+      // Without a cache the outage still fails and says why.
+      mock.reset('maintenance');
+      const noCache = await astro(kind, ['build'], env).done;
+      assert.notEqual(noCache.code, 0);
+      assert.match(noCache.output, /HTTP 503[\s\S]*Kein nutzbarer Cache/);
+      await successfulBuild(kind);
+      secretFree(await readFile(cacheFile, 'utf8'));
+
+      mock.reset('maintenance');
+      const fallback = await astro(kind, ['build'], env).done;
+      secretFree(fallback.output);
+      assert.equal(fallback.code, 0, fallback.output);
+      assert.match(fallback.output, /nicht erreichbar.*aus dem Cache verwendet/);
+      assert.ok(mock.calls.length >= 3);
+      await assertBuild(outputDir(kind));
+      await productionFree(join(dirs[kind], 'dist'));
+
+      // Configuration errors never fall back to the cache.
+      mock.reset('unauthorized');
+      const unauthorized = await astro(kind, ['build'], env).done;
+      assert.notEqual(unauthorized.code, 0);
+      assert.match(unauthorized.output, /HTTP 401/);
+      assert.doesNotMatch(unauthorized.output, /aus dem Cache/);
+
+      // An expired snapshot is refused.
+      const stored = JSON.parse(await readFile(cacheFile, 'utf8'));
+      stored.fetchedAt = new Date(Date.now() - 8 * 86_400_000).toISOString();
+      await writeFile(cacheFile, JSON.stringify(stored));
+      mock.reset('maintenance');
+      const expired = await astro(kind, ['build'], env).done;
+      assert.notEqual(expired.code, 0);
+      assert.match(expired.output, /älter als 7 Tage/);
+      secretFree(expired.output);
+    } finally {
+      await writeFile(configPath, original);
+      await rm(cacheFile, { force: true });
+    }
+  });
+
   await runCase('Buildfehler und redigierte Warnungen', async () => {
     for (const [scenario, variables, message] of [
       ['success', keyless, /ERECHT24_API_KEY/], ['unauthorized', env, /HTTP 401/],

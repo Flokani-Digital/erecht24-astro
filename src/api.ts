@@ -10,6 +10,9 @@ interface Credentials {
   pluginKey: string;
 }
 
+/** Temporary outage after all attempts: the only failure a cached snapshot may replace. */
+export class TransientApiError extends Error {}
+
 /** Internal dependencies allow offline tests without a configurable production API host. */
 export interface ApiDependencies {
   fetch?: typeof globalThis.fetch;
@@ -93,7 +96,7 @@ async function readDocument(
       else await response.body?.cancel().catch(() => {});
     } catch {
       if (attempt === 2) {
-        throw new Error(`[@flokani.digital/erecht24-astro] ${type}: Netzwerkfehler oder Timeout nach 3 Versuchen.`);
+        throw new TransientApiError(`[@flokani.digital/erecht24-astro] ${type}: Netzwerkfehler oder Timeout nach 3 Versuchen.`);
       }
       await sleep(1000 * 2 ** attempt);
       continue;
@@ -104,7 +107,8 @@ async function readDocument(
         await sleep(delay);
         continue;
       }
-      throw new Error(`[@flokani.digital/erecht24-astro] ${type}: Abruf fehlgeschlagen (HTTP ${response.status}). ` +
+      const failure = retryStatuses.has(response.status) ? TransientApiError : Error;
+      throw new failure(`[@flokani.digital/erecht24-astro] ${type}: Abruf fehlgeschlagen (HTTP ${response.status}). ` +
         (response.status === 401 ? 'Zugangsschlüssel und eRecht24-Mitgliedschaft prüfen.' :
           response.status === 404 ? 'Das Dokument muss im eRecht24-Projekt angelegt sein.' :
             'Dokumentzugriff und API-Verfügbarkeit prüfen.'));

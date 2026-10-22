@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import { createServer } from 'node:http';
 import { test } from 'node:test';
-import { credentialsFrom, fetchDocuments, plainText } from '../dist/api.js';
+import { TransientApiError, credentialsFrom, fetchDocuments, plainText } from '../dist/api.js';
 import { normalizeOptions } from '../dist/types.js';
 import { apiKey, pluginKey, texts } from './support/mock-server.mjs';
 
@@ -169,4 +169,32 @@ test('Timeout umfasst auch einen hängenden Response-Body', async (t) => {
     timeoutMs: 100, sleep: async () => {},
   }), /Timeout nach 3 Versuchen/);
   assert.equal(calls, 3);
+});
+
+test('Nur vorübergehende Ausfälle sind TransientApiError, Konfigurations- und Inhaltsfehler nicht', async () => {
+  for (const status of [429, 500, 502, 503, 504, 'network']) {
+    await assert.rejects(fetchDocuments(selected, credentials, noop, {
+      fetch: async () => { if (status === 'network') throw new Error('offline'); return new Response('', { status }); },
+      sleep: async () => {},
+    }), (error) => error instanceof TransientApiError);
+  }
+  await assert.rejects(fetchDocuments(selected, credentials, noop, {
+    fetch: async () => new Response('', { status: 429, headers: { 'Retry-After': '11' } }),
+  }), (error) => error instanceof TransientApiError);
+  for (const response of [new Response('', { status: 401 }), new Response('', { status: 404 }),
+    new Response('kein json'), json({ html_de: '' }), json([])]) {
+    await assert.rejects(fetchDocuments(selected, credentials, noop, { fetch: async () => response }),
+      (error) => !(error instanceof TransientApiError));
+  }
+});
+
+test('fallbackToCache: Optionen werden geprüft und normalisiert', () => {
+  assert.equal(normalizeOptions({}).fallbackToCache, undefined);
+  assert.deepEqual(normalizeOptions({ fallbackToCache: true }).fallbackToCache, { maxAgeDays: 7 });
+  assert.deepEqual(normalizeOptions({ fallbackToCache: {} }).fallbackToCache, { maxAgeDays: 7 });
+  assert.deepEqual(normalizeOptions({ fallbackToCache: { maxAgeDays: 30 } }).fallbackToCache, { maxAgeDays: 30 });
+  for (const value of [false, null, 0, 'ja', [], { maxAgeDays: 0 }, { maxAgeDays: 31 }, { maxAgeDays: 1.5 },
+    { maxAgeDays: '7' }, { maxAgeDays: 7, other: 1 }]) {
+    assert.throws(() => normalizeOptions({ fallbackToCache: value }), /fallbackToCache/);
+  }
 });

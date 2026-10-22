@@ -31,6 +31,10 @@ export async function createMockServer() {
       response.writeHead(401).end(JSON.stringify({ error: apiKey + pluginKey }));
       return;
     }
+    if (scenario === 'maintenance') {
+      response.writeHead(503).end(JSON.stringify({ error: 'maintenance' }));
+      return;
+    }
     if (!Object.hasOwn(texts, type)) {
       response.writeHead(404).end('{}');
       return;
