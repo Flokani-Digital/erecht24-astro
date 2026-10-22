@@ -82,6 +82,7 @@ Der Build ruft die Texte ab und schreibt sie in die statischen Seiten. Fehlt der
 
 | Thema | Inhalt |
 |---|---|
+| [Ablauf im Überblick](docs/ablauf.md) | Diagramme: Build, Abruf, Prerender, Deployment |
 | [Konfiguration](docs/konfiguration.md) | Alle Optionen, Props der Komponente und Standardwerte |
 | [Zugangsdaten](docs/zugangsdaten.md) | API-Key und Plugin-Key, `.env`, CI und Deployment |
 | [Seiten und Komponente](docs/seiten-und-komponente.md) | Seiten anlegen, mehrsprachig, SSR, Styling, Social Media |

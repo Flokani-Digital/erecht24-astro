@@ -17,7 +17,7 @@ const legalPages = [
   ['/datenschutz-social-media/', texts.privacyPolicySocialMedia.html_de, 'de'],
   ['/en/privacy-policy/', texts.privacyPolicy.html_en, 'en'],
 ];
-const docs = ['abruf-und-fehler', 'fehlerbehebung', 'konfiguration', 'seiten-und-komponente', 'styling', 'zugangsdaten'];
+const docs = ['ablauf', 'abruf-und-fehler', 'fehlerbehebung', 'konfiguration', 'seiten-und-komponente', 'styling', 'zugangsdaten'];
 const cleanEnv = {
   ...process.env, ASTRO_TELEMETRY_DISABLED: '1', WRANGLER_SEND_METRICS: 'false', NO_COLOR: '1', CI: '1',
   ASTRO_DEV_BACKGROUND: '1', ASTRO_PREVIEW_BACKGROUND: '1',
