@@ -1,6 +1,6 @@
 # Projektplan: Astro Rechtstexte für eRecht24
 
-Status: Erste lokale Implementierung vorhanden (Stand 1. Oktober 2026). Paket, Astro-Komponente und Beispielprojekte sind umgesetzt und mit simulierten Antworten geprüft. Das Paket ist noch nicht veröffentlicht; echte API- und Browserprüfung stehen aus.
+Status: Implementierung vorhanden, inzwischen auch mit Cloudflare-Adapter (`workerd`-Prerendering) und CI-Matrix (Stand 22. Oktober 2026). Die Testaufzählungen weiter unten stammen vom 1. Oktober und sind nicht vollständig; maßgeblich sind `CONTRIBUTING.md` und die Tests. Paket, Astro-Komponente und Beispielprojekte sind umgesetzt und mit simulierten Antworten geprüft. Das Paket ist noch nicht veröffentlicht; echte API- und Browserprüfung stehen aus.
 
 ## Ziel
 
