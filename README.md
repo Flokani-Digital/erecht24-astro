@@ -2,7 +2,7 @@
 
 `@flokani.digital/erecht24-astro` ist eine Astro-Integration, die Impressum, Datenschutzerklärung und optional die Datenschutzerklärung für Social Media aus deinem [eRecht24](https://www.e-recht24.de/)-Projekt beim Build abruft und als HTML ausgibt. Im Browser deiner Besucher findet kein API-Aufruf statt.
 
-> **Status:** Das Paket ist noch nicht veröffentlicht (`private`, Lizenz offen). Bis zur Veröffentlichung kann es als lokales Archiv installiert werden, siehe [Installation](#installation).
+> **Status:** Das Paket ist noch nicht veröffentlicht (`private`). Bis zur Veröffentlichung kann es als lokales Archiv installiert werden, siehe [Installation](#installation).
 >
 > Kein offizielles Produkt von eRecht24. Die Rechtstexte stammen unverändert von eRecht24; für ihre Vollständigkeit, Aktualität und korrekte Einbindung bleibt der Betreiber der Website verantwortlich.
 
@@ -108,3 +108,7 @@ Geplant sind Push-Benachrichtigungen von eRecht24, die über einen Deploy-Hook a
 - [eRecht24 OpenAPI](https://api.e-recht24.de/v2openapi.json)
 - [Astro Integration API](https://docs.astro.build/en/reference/integrations-reference/)
 - [Astro: Umgebungsvariablen](https://docs.astro.build/en/guides/environment-variables/)
+
+## Lizenz
+
+[MIT](LICENSE) © Flokani GmbH. Forks und eigene Integrationen sollten über `ERECHT24_PLUGIN_KEY` einen eigenen eRecht24-Developer-Key verwenden.

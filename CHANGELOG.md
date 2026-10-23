@@ -9,5 +9,6 @@
 - Der Cache-Fallback ist über einen SHA-256-Fingerabdruck an den Projekt-API-Key gebunden und verwirft Cache-Dateien ohne passende Projektzuordnung.
 - Der Build leert `dist/` vor dem Kompilieren, damit Ausgaben gelöschter Quellen nicht im NPM-Archiv verbleiben.
 - Log-Meldungen für den Abruf: „API-Abruf gestartet: …“ und „API-Abruf erfolgreich: n Dokumente, Sprache …“.
+- Lizenz: MIT.
 - Unterstützung für statische Builds, Node-SSR und Cloudflare (`workerd`-Prerendering) mit Astro 7.
 - Rechtstexte können auch ohne `prerender = true` über Node-SSR und Cloudflare ausgegeben werden; der beim Build geladene Stand benötigt zur Laufzeit weder API-Zugriff noch Zugangsdaten.

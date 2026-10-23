@@ -197,8 +197,8 @@ test('Gepacktes Paket in unabhängigen Astro- und workerd-Projekten', { timeout:
   const packed = await command('npm', ['pack', '--ignore-scripts', '--json', '--pack-destination', work], root).done;
   assert.equal(packed.code, 0, packed.output);
   const [pack] = JSON.parse(packed.output);
-  for (const path of ['components/LegalText.astro', 'dist/index.d.ts', ...docs.map((name) => `docs/${name}.md`)]) assert.ok(pack.files.some((entry) => entry.path === path), `Fehlt im Archiv: ${path}`);
-  assert.ok(pack.files.every((entry) => /^(dist\/|components\/|docs\/[^/]+\.md$|README.md$|package.json$)/.test(entry.path)));
+  for (const path of ['LICENSE', 'components/LegalText.astro', 'dist/index.d.ts', ...docs.map((name) => `docs/${name}.md`)]) assert.ok(pack.files.some((entry) => entry.path === path), `Fehlt im Archiv: ${path}`);
+  assert.ok(pack.files.every((entry) => /^(dist\/|components\/|docs\/[^/]+\.md$|README.md$|LICENSE$|package.json$)/.test(entry.path)));
   const sourceDir = join(root, 'src');
   const expectedDist = (await filesBelow(sourceDir))
     .filter((file) => file.endsWith('.ts') && !file.endsWith('.d.ts')).flatMap((file) => {
