@@ -45,7 +45,7 @@ Die automatisierten Tests decken insbesondere Folgendes ab:
 - Installation aus dem tatsächlichen NPM-Archiv, Komponentenexport und Typ-Injektion mit `astro check`.
 - Einen Abruf pro Dokument, gemeinsame laufende Dev-Anfragen, Cache-Erhalt über HMR und einen frischen Abruf nach echtem Serverneustart.
 - Einen fehlgeschlagenen Dev-Abruf (HTTP 401) über echtes HTTP mit kontrollierter Paketmeldung.
-- Erfolgreichen SSR-Build ohne `prerender` und Verweigerung der dynamischen Ausgabe erst beim Produktionsrendern.
+- Erfolgreiche Ausgabe der Rechtstexte auf Seiten ohne `prerender` mit allen drei Targets, ohne API-Abrufe oder Zugangsdaten zur Laufzeit.
 - Fehler, leere Texte, Warnungen, Wiederholungen und einen hängenden HTTP-Response-Body.
 - Abweichendes Env-Verzeichnis, Ausführungsmodus und Vorrang der Prozessumgebung.
 - Keine künstlichen Zugangsschlüssel in Paketdateien, Logs und vollständigen Build-Verzeichnissen, einschließlich SSR-Dateien.

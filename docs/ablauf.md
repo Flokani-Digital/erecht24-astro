@@ -4,6 +4,8 @@ Wann, wo und womit passiert was? Die Diagramme zeigen den Weg von der Konfigurat
 
 ## Build
 
+Die Diagramme zeigen die empfohlene Einbindung mit `prerender = true`. Ohne diese Angabe rendern Node- und Cloudflare-SSR-Seiten den beim Build eingebetteten Stand beim Aufruf, ohne API-Zugriff oder Zugangsdaten zur Laufzeit.
+
 ```mermaid
 flowchart TB
     subgraph setup["Einrichtung im Projekt"]
@@ -23,7 +25,7 @@ flowchart TB
     end
 
     api[("eRecht24 API<br/>api.e-recht24.de/v2")]
-    pages["Seiten in src/pages<br/>&lt;LegalText type lang /&gt;<br/>prerender = true"]
+    pages["Seiten in src/pages<br/>&lt;LegalText type lang /&gt;<br/>prerender = true (empfohlen)"]
     html["Statisches HTML<br/>/impressum/ /datenschutz/"]
     deploy["Deploy<br/>z. B. Cloudflare Pages / Workers Assets"]
     visitor(["Besucher<br/>nur fertiges HTML, kein API-Aufruf"])

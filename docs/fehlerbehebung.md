@@ -39,7 +39,6 @@ Alle Meldungen beginnen mit `[@flokani.digital/erecht24-astro]`.
 |---|---|---|
 | `Der Dokumenttyp "…" wurde nicht in documents konfiguriert.` | Komponente nutzt einen Typ, der nicht geladen wird | Typ in `documents` aufnehmen |
 | `Die Sprache "…" wurde für … nicht in languages konfiguriert oder der Text fehlt.` | `lang` passt nicht zu `languages` | `languages` ergänzen oder `lang` korrigieren |
-| `Rechtstextseiten benötigen export const prerender = true.` | Rechtstextseite wird in Produktion dynamisch gerendert (SSR); der Build kann zuvor erfolgreich gewesen sein | `export const prerender = true;` in jede Rechtstextseite setzen, danach neu bauen und deployen |
 | `Inhalte sind vor dem Rendern noch nicht geladen.` | Seite wird außerhalb von `build` oder `dev` gerendert | Über `astro build` oder `astro dev` starten |
 | `Rechtstexte dürfen nur im Astro-Frontmatter importiert werden.` | Import in Client-Code | Nur in `.astro`-Frontmatter oder serverseitig verwenden |
 

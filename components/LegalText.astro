@@ -16,8 +16,5 @@ if (!document) {
 if (!lang || !content.languages.includes(lang) || !document[lang]) {
   throw new Error(`[@flokani.digital/erecht24-astro] Die Sprache ${JSON.stringify(lang)} wurde für ${type} nicht in languages konfiguriert oder der Text fehlt.`);
 }
-if (import.meta.env.PROD && !Astro.isPrerendered) {
-  throw new Error('[@flokani.digital/erecht24-astro] Rechtstextseiten benötigen export const prerender = true.');
-}
 ---
 <div class={className} lang={lang} set:html={document[lang]} />

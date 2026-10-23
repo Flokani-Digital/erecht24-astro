@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import { spawn } from 'node:child_process';
 import { createServer } from 'node:net';
-import { cp, mkdir, mkdtemp, readFile, readdir, realpath, rm, symlink, writeFile } from 'node:fs/promises';
+import { cp, mkdir, mkdtemp, readFile, readdir, realpath, rm, writeFile } from 'node:fs/promises';
 import { join, relative, sep } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { test } from 'node:test';
@@ -373,29 +373,45 @@ test('Gepacktes Paket in unabhängigen Astro- und workerd-Projekten', { timeout:
     });
   }
 
-  await runCase('Node-SSR ohne prerender: Build erfolgreich, Runtime sperrt Rechtstext', async () => {
-    const directory = dirs.dynamic = join(work, 'dynamic-ssr');
-    await mkdir(join(directory, 'src/pages'), { recursive: true });
-    await cp(join(dirs.ssr, 'astro.config.mjs'), join(directory, 'astro.config.mjs'));
-    await symlink(join(dirs.ssr, 'node_modules'), join(directory, 'node_modules'), 'dir');
-    await writeFile(join(directory, 'package.json'), '{"private":true,"type":"module"}');
-    await writeFile(join(directory, 'src/pages/impressum.astro'), `---\nimport LegalText from '@flokani.digital/erecht24-astro/LegalText.astro';\n---\n<LegalText type="imprint" />\n`);
-    mock.reset();
-    const build = await astro('dynamic', ['build']).done;
-    assert.equal(build.code, 0, build.output);
-    secretFree(build.output);
-    await productionFree(join(directory, 'dist'));
-    mock.reset();
-    const number = await port();
-    const server = command(process.execPath, ['dist/server/entry.mjs'], directory, { ...keyless, HOST: '127.0.0.1', PORT: String(number) });
+  for (const kind of targets) await runCase(`${kind}: Seiten ohne prerender liefern Rechtstexte ohne Runtime-Abruf`, async () => {
+    const originals = new Map();
     try {
-      // This fixture intentionally has no non-legal readiness page.
-      await until(() => /listening|Local|localhost|127\.0\.0\.1/i.test(server.output()) || (server.exited() && assert.fail(server.output())), 30_000, server.output());
-      const body = await expectRenderError(server, `http://127.0.0.1:${number}/impressum/`, /prerender\s*=\s*true/, null);
-      assert.ok(!body.includes(texts.imprint.html_de));
-      assert.equal(mock.calls.length, 0);
-      secretFree(server.output());
-    } finally { await server.stop(); }
+      for (const filename of await filesBelow(join(dirs[kind], 'src/pages'))) {
+        if (!filename.endsWith('.astro')) continue;
+        const original = await readFile(filename, 'utf8');
+        originals.set(filename, original);
+        await writeFile(filename, original.replace('export const prerender = true;', ''));
+      }
+      await rm(join(dirs[kind], 'dist'), { recursive: true, force: true });
+      mock.reset();
+      const build = await astro(kind, ['build']).done;
+      assert.equal(build.code, 0, build.output);
+      assertCalls();
+      secretFree(build.output);
+      await productionFree(join(dirs[kind], 'dist'));
+      if (kind === 'static') await assertBuild(outputDir(kind));
+      else for (const [pathname] of legalPages) {
+        await assert.rejects(readFile(join(outputDir(kind), pathname.slice(1), 'index.html')), /ENOENT/, 'SSR muss dynamisch rendern');
+      }
+      mock.reset();
+      const number = await port();
+      const server = kind === 'ssr'
+        ? command(process.execPath, ['dist/server/entry.mjs'], dirs[kind], { ...keyless, HOST: '127.0.0.1', PORT: String(number) })
+        : astro(kind, ['preview', '--host', '127.0.0.1', '--port', String(number), '--ignore-lock'], keyless);
+      try {
+        await waitForPage(server, `http://127.0.0.1:${number}/`, 'Rechtstexte im Astro-Projekt');
+        for (const [pathname, html, lang] of legalPages) {
+          const result = await request(`http://127.0.0.1:${number}${pathname}`);
+          assert.equal(result.status, 200, `${pathname}\n${server.output()}`);
+          assert.ok(result.body.includes(html));
+          assert.ok(result.body.includes(`class="legal-text" lang="${lang}"`));
+        }
+        assert.equal(mock.calls.length, 0);
+        secretFree(server.output());
+      } finally { await server.stop(); }
+    } finally {
+      for (const [filename, original] of originals) await writeFile(filename, original);
+    }
   });
 
   for (const kind of targets) await runCase(`${kind}: fallbackToCache überbrückt Wartung (503), aber keine Konfigurationsfehler`, async () => {

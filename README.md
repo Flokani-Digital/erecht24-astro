@@ -1,6 +1,6 @@
 # Astro Rechtstexte für eRecht24
 
-`@flokani.digital/erecht24-astro` ist eine Astro-Integration, die Impressum, Datenschutzerklärung und optional die Datenschutzerklärung für Social Media aus deinem [eRecht24](https://www.e-recht24.de/)-Projekt beim Build abruft und als statisches HTML ausgibt. Im Browser deiner Besucher findet kein API-Aufruf statt.
+`@flokani.digital/erecht24-astro` ist eine Astro-Integration, die Impressum, Datenschutzerklärung und optional die Datenschutzerklärung für Social Media aus deinem [eRecht24](https://www.e-recht24.de/)-Projekt beim Build abruft und als HTML ausgibt. Im Browser deiner Besucher findet kein API-Aufruf statt.
 
 > **Status:** Das Paket ist noch nicht veröffentlicht (`private`, Lizenz offen). Bis zur Veröffentlichung kann es als lokales Archiv installiert werden, siehe [Installation](#installation).
 >
@@ -68,7 +68,7 @@ export const prerender = true;
 
 Für die Datenschutzerklärung dasselbe mit `type="privacyPolicy"`.
 
-In SSR-Projekten braucht **jede Rechtstextseite** `export const prerender = true;`, auch mit Node- oder Cloudflare-Adapter. Ohne diese Angabe kann der Build erfolgreich sein; beim dynamischen Rendern in Produktion verweigert die Komponente die Ausgabe. Die Standardkonfiguration des Cloudflare-Adapters mit `workerd` wird unterstützt; ein Override auf `prerenderEnvironment: 'node'` ist nicht nötig.
+Für Rechtstextseiten empfehlen wir `export const prerender = true;`, damit Astro sie bereits beim Build als HTML erzeugt. Ohne diese Angabe können Node- und Cloudflare-SSR-Seiten die beim Build geladenen Texte auch dynamisch ausgeben, ohne API-Abruf oder Zugangsdaten zur Laufzeit. Die Standardkonfiguration des Cloudflare-Adapters mit `workerd` wird unterstützt; ein Override auf `prerenderEnvironment: 'node'` ist nicht nötig.
 
 **4. Bauen**
 
@@ -76,7 +76,7 @@ In SSR-Projekten braucht **jede Rechtstextseite** `export const prerender = true
 npx astro build
 ```
 
-Der Build ruft die Texte ab und schreibt sie in die statischen Seiten. Fehlt der Key oder ein Text, bricht der Build mit einer verständlichen Meldung ab.
+Der Build lädt die Texte für die statische Ausgabe oder SSR. Fehlt der Key oder ein Text, bricht der Build mit einer verständlichen Meldung ab.
 
 ## Dokumentation
 
