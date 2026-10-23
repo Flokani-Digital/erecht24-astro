@@ -95,7 +95,7 @@ Zum Mitentwickeln siehe [CONTRIBUTING.md](https://github.com/Flokani-Digital/ere
 ## Wichtig zu wissen
 
 - **Aktualisierung nur per Build:** Änderungen in eRecht24 erscheinen erst nach einem neuen erfolgreichen Build und Deployment. Regelmäßige Builds sind Aufgabe deines Deployment-Systems.
-- **Kein stiller Fallback:** Es gibt keinen Rückgriff auf alte Texte. Ein fehlgeschlagener Build lässt das letzte erfolgreiche Deployment bestehen.
+- **Kein stiller Fallback:** Standardmäßig gibt es keinen Rückgriff auf alte Texte. Ein fehlgeschlagener Build lässt das letzte erfolgreiche Deployment bestehen. Optional nutzt `fallbackToCache` bei vorübergehenden eRecht24-Ausfällen den letzten erfolgreichen Stand desselben Projekts, siehe [Abruf und Fehler](docs/abruf-und-fehler.md).
 - **HTML unverändert:** Der Text wird nicht bereinigt oder verändert. Prüfe das echte HTML mit deinem Layout und deiner Content Security Policy.
 - **Keys:** Der API-Key ist geheim und gehört in ein Secret. Der Plugin-Key ist im Paket enthalten und kein Geheimnis.
 

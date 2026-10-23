@@ -28,7 +28,7 @@ Alle Meldungen beginnen mit `[@flokani.digital/erecht24-astro]`.
 | Meldung | Ursache | Lösung |
 |---|---|---|
 | `Die Konfiguration muss ein Objekt sein.` | Falscher Aufruf von `rechtstexte(...)` | Objekt übergeben oder leer aufrufen |
-| `Unbekannte Option. Erlaubt sind documents und languages.` | Tippfehler oder nicht unterstützte Option | Nur `documents` und `languages` verwenden |
+| `Unbekannte Option. Erlaubt sind documents, languages und fallbackToCache.` | Tippfehler oder nicht unterstützte Option | Nur `documents`, `languages` und `fallbackToCache` verwenden |
 | `documents muss bekannte Dokumenttypen enthalten.` | Leere Liste oder unbekannter Wert | `imprint`, `privacyPolicy`, `privacyPolicySocialMedia` |
 | `languages muss de und/oder en enthalten.` | Leere Liste oder unbekannter Wert | `de` und/oder `en` |
 

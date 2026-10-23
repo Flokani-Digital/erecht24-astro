@@ -2,7 +2,7 @@
 
 Hinweise für alle, die am Paket `@flokani.digital/erecht24-astro` arbeiten. Die Nutzung des Pakets steht in der [README](README.md) und unter [docs/](docs/).
 
-Der vollständige Projektumfang und der Prüfstand stehen im [Projektplan](Projektplan.md).
+`vite` ist bewusst Peer-Dependency: `src/index.ts` importiert `loadEnv` direkt aus `vite`. Strikte Paketmanager wie pnpm lösen den Import sonst nicht auf; verwendet wird die von Astro installierte Version.
 
 ## Lokal entwickeln
 
