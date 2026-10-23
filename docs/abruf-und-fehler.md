@@ -34,7 +34,7 @@ rechtstexte({ fallbackToCache: { maxAgeDays: 7 } }) // oder fallbackToCache: tru
 
 So funktioniert es:
 
-- Jeder Build ruft weiterhin frisch ab. Nach einem vollständig erfolgreichen Abruf speichert das Paket die Texte in `<cacheDir>/erecht24-astro/snapshot.json`. Standard ist `node_modules/.astro/`; Astro-Option `cacheDir`. Die Datei enthält nur Rechtstexte und den Abrufzeitpunkt, keine Schlüssel.
+- Jeder Build ruft weiterhin frisch ab. Nach einem vollständig erfolgreichen Abruf speichert das Paket die Texte in `<cacheDir>/erecht24-astro/snapshot.json`. Standard ist `node_modules/.astro/`; Astro-Option `cacheDir`. Die Datei enthält Rechtstexte, den Abrufzeitpunkt und einen SHA-256-Fingerabdruck des Projekt-API-Keys, keine Schlüssel. Nach einem Wechsel des Projekt-API-Keys und bei älteren Cache-Dateien ohne Fingerabdruck ist zunächst ein erfolgreicher Abruf erforderlich.
 - Schlägt der Abruf nach allen Wiederholungen **vorübergehend** fehl (Netzwerkfehler, Timeout, HTTP `429`, `500`, `502`, `503`, `504`), verwendet der Build den gespeicherten Stand und gibt eine **Warnung** mit dem Datum aus.
 - Ist kein Stand vorhanden, er ist älter als `maxAgeDays`, passt nicht zu `documents`/`languages` oder ist beschädigt, bricht der Build ab. Die Meldung nennt den Grund.
 - **Kein** Fallback bei `401`, `403`, `404`, fehlendem Key, ungültiger Antwort, leerem oder fehlendem Text. Das sind Konfigurations- oder Inhaltsfehler.
