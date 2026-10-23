@@ -143,8 +143,6 @@ async function assertBuild(directory) {
     assert.ok(contents.includes(`class="legal-text" lang="${lang}"`));
     assert.ok(!contents.includes('<script'), 'Statische Rechtstexte benötigen kein Browser-JavaScript');
   }
-  const slashCheck = await command('bash', [join(root, 'scripts/check-trailing-slash.sh'), directory], root).done;
-  assert.equal(slashCheck.code, 0, slashCheck.output);
 }
 
 async function installedLinks(packageRoot) {

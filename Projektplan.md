@@ -281,7 +281,7 @@ Automatisiert geprüft:
 - `astro sync` und `astro check` ohne Schlüssel; `astro preview` ohne erneuten Abruf; gemeinsame Dev-Anfragen, Wiederverwendung und neuer Abruf nach Neustart.
 - Fehlgeschlagene Builds bei fehlenden Schlüsseln, HTTP 401, fehlender englischer Fassung und leerem Text. Warnungen werden ausgegeben, Schlüsselwerte darin entfernt.
 - Eigenes Env-Verzeichnis, `--mode staging` und Vorrang gesetzter Umgebungsvariablen.
-- Keine künstlichen Testschlüssel in Paketdateien, Logs und vollständigen Build-Verzeichnissen einschließlich SSR-Dateien. Statische Seiten enthalten die unveränderten Testtexte ohne Browser-JavaScript; interne Links bestehen den Trailing-Slash-Check.
+- Keine künstlichen Testschlüssel in Paketdateien, Logs und vollständigen Build-Verzeichnissen einschließlich SSR-Dateien. Statische Seiten enthalten die unveränderten Testtexte ohne Browser-JavaScript.
 
 Erfolgreich geprüfte Kombinationen für Installation, Astro-Befehle sowie statischen und SSR-Build:
 
