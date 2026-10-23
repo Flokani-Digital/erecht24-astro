@@ -82,20 +82,20 @@ Der Build lädt die Texte für die statische Ausgabe oder SSR. Fehlt der Key ode
 
 | Thema | Inhalt |
 |---|---|
-| [Ablauf im Überblick](docs/ablauf.md) | Diagramme: Build, Abruf, Prerender, Deployment |
-| [Konfiguration](docs/konfiguration.md) | Alle Optionen, Props der Komponente und Standardwerte |
-| [Zugangsdaten](docs/zugangsdaten.md) | API-Key und Plugin-Key, `.env`, CI und Deployment |
-| [Seiten und Komponente](docs/seiten-und-komponente.md) | Seiten anlegen, mehrsprachig, SSR, Styling, Social Media |
-| [Styling](docs/styling.md) | Struktur des HTML, eigenes CSS, Tailwind Typography, Dark Mode |
-| [Abruf und Fehlerverhalten](docs/abruf-und-fehler.md) | Verhalten je Astro-Befehl, Wiederholungen, Timeouts, Aktualisierung |
-| [Fehlerbehebung](docs/fehlerbehebung.md) | Fehlermeldung, Ursache, Lösung |
+| [Ablauf im Überblick](https://github.com/Flokani-Digital/erecht24-astro/blob/HEAD/docs/ablauf.md) | Diagramme: Build, Abruf, Prerender, Deployment |
+| [Konfiguration](https://github.com/Flokani-Digital/erecht24-astro/blob/HEAD/docs/konfiguration.md) | Alle Optionen, Props der Komponente und Standardwerte |
+| [Zugangsdaten](https://github.com/Flokani-Digital/erecht24-astro/blob/HEAD/docs/zugangsdaten.md) | API-Key und Plugin-Key, `.env`, CI und Deployment |
+| [Seiten und Komponente](https://github.com/Flokani-Digital/erecht24-astro/blob/HEAD/docs/seiten-und-komponente.md) | Seiten anlegen, mehrsprachig, SSR, Styling, Social Media |
+| [Styling](https://github.com/Flokani-Digital/erecht24-astro/blob/HEAD/docs/styling.md) | Struktur des HTML, eigenes CSS, Tailwind Typography, Dark Mode |
+| [Abruf und Fehlerverhalten](https://github.com/Flokani-Digital/erecht24-astro/blob/HEAD/docs/abruf-und-fehler.md) | Verhalten je Astro-Befehl, Wiederholungen, Timeouts, Aktualisierung |
+| [Fehlerbehebung](https://github.com/Flokani-Digital/erecht24-astro/blob/HEAD/docs/fehlerbehebung.md) | Fehlermeldung, Ursache, Lösung |
 
 Zum Mitentwickeln siehe [CONTRIBUTING.md](https://github.com/Flokani-Digital/erecht24-astro/blob/HEAD/CONTRIBUTING.md).
 
 ## Wichtig zu wissen
 
 - **Aktualisierung nur per Build:** Änderungen in eRecht24 erscheinen erst nach einem neuen erfolgreichen Build und Deployment. Regelmäßige Builds sind Aufgabe deines Deployment-Systems.
-- **Kein stiller Fallback:** Standardmäßig gibt es keinen Rückgriff auf alte Texte. Ein fehlgeschlagener Build lässt das letzte erfolgreiche Deployment bestehen. Optional nutzt `fallbackToCache` bei vorübergehenden eRecht24-Ausfällen den letzten erfolgreichen Stand desselben Projekts, siehe [Abruf und Fehler](docs/abruf-und-fehler.md).
+- **Kein stiller Fallback:** Standardmäßig gibt es keinen Rückgriff auf alte Texte. Ein fehlgeschlagener Build lässt das letzte erfolgreiche Deployment bestehen. Optional nutzt `fallbackToCache` bei vorübergehenden eRecht24-Ausfällen den letzten erfolgreichen Stand desselben Projekts, siehe [Abruf und Fehler](https://github.com/Flokani-Digital/erecht24-astro/blob/HEAD/docs/abruf-und-fehler.md).
 - **HTML unverändert:** Der Text wird nicht bereinigt oder verändert. Prüfe das echte HTML mit deinem Layout und deiner Content Security Policy.
 - **Keys:** Der API-Key ist geheim und gehört in ein Secret. Der Plugin-Key ist im Paket enthalten und kein Geheimnis.
 
@@ -111,4 +111,4 @@ Geplant sind Push-Benachrichtigungen von eRecht24, die über einen Deploy-Hook a
 
 ## Lizenz
 
-[MIT](LICENSE) © Flokani GmbH. Forks und eigene Integrationen sollten über `ERECHT24_PLUGIN_KEY` einen eigenen eRecht24-Developer-Key verwenden.
+[MIT](https://github.com/Flokani-Digital/erecht24-astro/blob/HEAD/LICENSE) © Flokani GmbH. Forks und eigene Integrationen sollten über `ERECHT24_PLUGIN_KEY` einen eigenen eRecht24-Developer-Key verwenden.

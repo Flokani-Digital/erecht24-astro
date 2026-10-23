@@ -49,7 +49,7 @@ Die automatisierten Tests decken insbesondere Folgendes ab:
 - Fehler, leere Texte, Warnungen, Wiederholungen und einen hängenden HTTP-Response-Body.
 - Abweichendes Env-Verzeichnis, Ausführungsmodus und Vorrang der Prozessumgebung.
 - Keine künstlichen Zugangsschlüssel in Paketdateien, Logs und vollständigen Build-Verzeichnissen, einschließlich SSR-Dateien.
-- Alle sechs Nutzer-Dokumentationen unter `docs/` im Paketarchiv, gültige relative Dokumentationslinks und den absoluten GitHub-Link auf `CONTRIBUTING.md` in der README.
+- Paketarchiv ohne `docs/`: Die Dokumentation liegt nur auf GitHub, deshalb verwendet die README ausschließlich absolute Links.
 
 Zum Test einer anderen Astro-Version können ausschließlich für den Testlauf Versionen vorgegeben werden. Dabei darf NPM fehlende Pakete aus der Registry nachladen:
 

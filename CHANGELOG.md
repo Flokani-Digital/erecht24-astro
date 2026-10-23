@@ -14,5 +14,6 @@
 - Der Build leert `dist/` vor dem Kompilieren, damit Ausgaben gelöschter Quellen nicht im NPM-Archiv verbleiben.
 - Log-Meldungen für den Abruf: „API-Abruf gestartet: …“ und „API-Abruf erfolgreich: n Dokumente, Sprache …“.
 - Lizenz: MIT.
+- Die Dokumentation unter `docs/` wird nicht mehr mit dem Paket ausgeliefert; die README verlinkt sie auf GitHub.
 - Unterstützung für statische Builds, Node-SSR und Cloudflare (`workerd`-Prerendering) mit Astro 7.
 - Rechtstexte können auch ohne `prerender = true` über Node-SSR und Cloudflare ausgegeben werden; der beim Build geladene Stand benötigt zur Laufzeit weder API-Zugriff noch Zugangsdaten.

@@ -1,9 +1,9 @@
 import assert from 'node:assert/strict';
 import { spawn } from 'node:child_process';
 import { createServer } from 'node:net';
-import { cp, mkdir, mkdtemp, readFile, readdir, realpath, rm, writeFile } from 'node:fs/promises';
+import { cp, mkdir, mkdtemp, readFile, readdir, rm, writeFile } from 'node:fs/promises';
 import { join, relative, sep } from 'node:path';
-import { fileURLToPath, pathToFileURL } from 'node:url';
+import { fileURLToPath } from 'node:url';
 import { test } from 'node:test';
 import { apiKey, pluginKey, texts, createMockServer } from '../support/mock-server.mjs';
 
@@ -17,7 +17,6 @@ const legalPages = [
   ['/datenschutz-social-media/', texts.privacyPolicySocialMedia.html_de, 'de'],
   ['/en/privacy-policy/', texts.privacyPolicy.html_en, 'en'],
 ];
-const docs = ['ablauf', 'abruf-und-fehler', 'fehlerbehebung', 'konfiguration', 'seiten-und-komponente', 'styling', 'zugangsdaten'];
 const cleanEnv = {
   ...process.env, ASTRO_TELEMETRY_DISABLED: '1', WRANGLER_SEND_METRICS: 'false', NO_COLOR: '1', CI: '1',
   ASTRO_DEV_BACKGROUND: '1', ASTRO_PREVIEW_BACKGROUND: '1',
@@ -146,18 +145,11 @@ async function assertBuild(directory) {
 }
 
 async function installedLinks(packageRoot) {
-  const confinedRoot = await realpath(packageRoot);
-  for (const filename of ['README.md', ...docs.map((name) => `docs/${name}.md`)]) {
-    const contents = await readFile(join(packageRoot, filename), 'utf8');
-    for (const match of contents.matchAll(/!?\[[^\]]*\]\(([^\s)]+)(?:\s+"[^"]*")?\)/g)) {
-      const href = match[1].replace(/^<|>$/g, '');
-      if (/^[a-z][a-z\d+.-]*:/i.test(href) || href.startsWith('#') || href.startsWith('//')) continue;
-      const url = new URL(href, pathToFileURL(join(packageRoot, filename)));
-      url.search = ''; url.hash = '';
-      const destination = await realpath(fileURLToPath(url));
-      const rel = relative(confinedRoot, destination);
-      assert.ok(rel !== '..' && !rel.startsWith(`..${sep}`) && !rel.startsWith(sep), `Paketlink verlässt Paket: ${filename} → ${href}`);
-    }
+  // npmjs.com shows only the README; docs live on GitHub, so every link must be absolute.
+  const contents = await readFile(join(packageRoot, 'README.md'), 'utf8');
+  for (const match of contents.matchAll(/!?\[[^\]]*\]\(([^\s)]+)(?:\s+"[^"]*")?\)/g)) {
+    const href = match[1].replace(/^<|>$/g, '');
+    assert.ok(/^https:\/\//.test(href) || href.startsWith('#'), `README-Link muss absolut sein: ${href}`);
   }
 }
 
@@ -195,8 +187,8 @@ test('Gepacktes Paket in unabhängigen Astro- und workerd-Projekten', { timeout:
   const packed = await command('npm', ['pack', '--ignore-scripts', '--json', '--pack-destination', work], root).done;
   assert.equal(packed.code, 0, packed.output);
   const [pack] = JSON.parse(packed.output);
-  for (const path of ['LICENSE', 'components/LegalText.astro', 'dist/index.d.ts', ...docs.map((name) => `docs/${name}.md`)]) assert.ok(pack.files.some((entry) => entry.path === path), `Fehlt im Archiv: ${path}`);
-  assert.ok(pack.files.every((entry) => /^(dist\/|components\/|docs\/[^/]+\.md$|README.md$|LICENSE$|package.json$)/.test(entry.path)));
+  for (const path of ['LICENSE', 'components/LegalText.astro', 'dist/index.d.ts']) assert.ok(pack.files.some((entry) => entry.path === path), `Fehlt im Archiv: ${path}`);
+  assert.ok(pack.files.every((entry) => /^(dist\/|components\/|README.md$|LICENSE$|package.json$)/.test(entry.path)));
   const sourceDir = join(root, 'src');
   const expectedDist = (await filesBelow(sourceDir))
     .filter((file) => file.endsWith('.ts') && !file.endsWith('.d.ts')).flatMap((file) => {
