@@ -11,7 +11,7 @@
 
 Die Dokumente werden nacheinander abgerufen. Bei einem dauerhaften Fehler stoppt der Abruf sofort.
 
-In `dev` wird ein erfolgreicher Abruf für die Lebensdauer des Servers gespeichert. Nach einem Fehler (zum Beispiel falscher Key) den Fehler beheben und den Dev-Server neu starten; ein Neustart lädt außerdem einen frischen Stand.
+In `dev` wird nach dem ersten erfolgreichen Abruf nicht erneut abgerufen. Der Stand bleibt für die Lebensdauer des Servers erhalten, auch bei Seitenänderungen und HMR. Änderungen an Rechtstexten in eRecht24 werden deshalb erst nach einem Neustart des Dev-Servers geladen. Nach einem Fehler (zum Beispiel falscher Key) den Fehler beheben und den Dev-Server neu starten.
 
 Das gilt auch mit Node- und Cloudflare-Adapter in deren Standardkonfiguration. In Produktion werden ausschließlich die beim Build eingebetteten Texte ausgegeben; ein Abruf zur Laufzeit findet nicht statt.
 
@@ -21,7 +21,7 @@ Das gilt auch mit Node- und Cloudflare-Adapter in deren Standardkonfiguration. I
 - Jeder Versuch hat **10 Sekunden**, einschließlich des Response-Bodys.
 - Zwischen den Versuchen wird **1 s**, dann **2 s** gewartet.
 - Wiederholt wird bei Netzwerkfehlern, Timeouts und HTTP `429`, `500`, `502`, `503`, `504`.
-- Bei `429` wird `Retry-After` als Sekundenangabe beachtet. HTTP-Datumswerte und ungültige Angaben verwenden die reguläre Wartezeit von 1 s, dann 2 s. Verlangt der Server mehr als 10 Sekunden, bricht der Abruf ab.
+- Bei `429` wird `Retry-After` als Sekundenangabe beachtet. HTTP-Datumswerte und ungültige Angaben verwenden die reguläre Wartezeit von 1 s, dann 2 s. Eine Sekundenangabe über 10 s führt sofort zum Fehler, ohne Wartezeit oder weiteren Versuch. Bei aktiviertem `fallbackToCache` kann der Build stattdessen einen nutzbaren gespeicherten Stand verwenden.
 - Alle anderen HTTP-Fehler (zum Beispiel `401`, `404`) und Weiterleitungen werden nicht wiederholt.
 
 ## Ausfall: Fallback auf den letzten Stand
