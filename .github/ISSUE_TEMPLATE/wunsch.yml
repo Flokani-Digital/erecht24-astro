@@ -1,0 +1,23 @@
+name: Funktion vorschlagen
+description: Idee oder Erweiterung für das Plugin.
+labels: [enhancement]
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: Welches Problem soll gelöst werden?
+      description: Anwendungsfall aus einem echten Projekt.
+    validations:
+      required: true
+  - type: textarea
+    id: vorschlag
+    attributes:
+      label: Vorschlag
+      description: Gewünschtes Verhalten oder neue Option.
+    validations:
+      required: true
+  - type: textarea
+    id: alternativen
+    attributes:
+      label: Alternativen
+      description: Bisheriger Workaround oder andere Lösungswege.

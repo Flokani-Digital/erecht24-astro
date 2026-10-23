@@ -1,0 +1,65 @@
+name: Fehler melden
+description: Das Plugin verhält sich anders als dokumentiert.
+labels: [bug]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        **Niemals den eRecht24-API-Key posten** – auch nicht gekürzt, in Logs oder Screenshots. Ein veröffentlichter Key muss im eRecht24-Projekt-Manager neu erzeugt werden.
+  - type: textarea
+    id: beschreibung
+    attributes:
+      label: Was ist passiert?
+      description: Beobachtetes Verhalten und erwartetes Verhalten.
+    validations:
+      required: true
+  - type: textarea
+    id: schritte
+    attributes:
+      label: Schritte zum Nachstellen
+      placeholder: |
+        1. astro.config.mjs mit …
+        2. npm run build
+        3. …
+    validations:
+      required: true
+  - type: textarea
+    id: konfiguration
+    attributes:
+      label: Konfiguration
+      description: Aufruf von rechtstexte({ … }) aus astro.config.mjs, ohne Zugangsdaten.
+      render: js
+  - type: textarea
+    id: log
+    attributes:
+      label: Fehlermeldung / Log
+      description: Ausgabe mit Präfix [@flokani.digital/erecht24-astro]. Keys vorher entfernen.
+      render: text
+  - type: dropdown
+    id: befehl
+    attributes:
+      label: Betroffener Befehl
+      multiple: true
+      options:
+        - astro build
+        - astro dev
+        - astro preview
+        - astro check / sync
+  - type: dropdown
+    id: ausgabe
+    attributes:
+      label: Ausgabe / Adapter
+      options:
+        - "Statisch (output: static)"
+        - Node-SSR (@astrojs/node)
+        - Cloudflare (@astrojs/cloudflare)
+        - Anderer Adapter
+    validations:
+      required: true
+  - type: input
+    id: versionen
+    attributes:
+      label: Versionen
+      placeholder: Plugin 0.1.0, Astro 7.3.5, Node 24.21.0, Adapter …
+    validations:
+      required: true
