@@ -458,7 +458,7 @@ test('Gepacktes Paket in unabhängigen Astro- und workerd-Projekten', { timeout:
     }
   });
 
-  await runCase('Buildfehler und redigierte Warnungen', async () => {
+  await runCase('Buildfehler und Warnungen als Klartext', async () => {
     for (const [scenario, variables, message] of [
       ['success', keyless, /ERECHT24_API_KEY/], ['unauthorized', env, /HTTP 401/],
       ['missing-en', env, /imprint \(en\)/], ['empty', env, /imprint \(de\)/],
@@ -473,7 +473,7 @@ test('Gepacktes Paket in unabhängigen Astro- und workerd-Projekten', { timeout:
     mock.reset('warning');
     const result = await astro('static', ['build']).done;
     assert.equal(result.code, 0, result.output);
-    assert.match(result.output, /Bitte prüfen: \[entfernt\] \[entfernt\]/);
+    assert.match(result.output, /Bitte prüfen: Hinweise zur Einbindung\./);
     secretFree(result.output);
   });
   await runCase('envDir, mode und Vorrang gesetzter Umgebungsvariablen', async () => {

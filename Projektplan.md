@@ -131,7 +131,7 @@ Der Projekt-API-Key wird lokal über eine nicht versionierte Umgebungskonfigurat
 - Schlüssel erst prüfen, wenn ein Abruf erforderlich ist. `sync`, `check` und `preview` funktionieren ohne diese Werte.
 - Die Authentifizierung über die Header `eRecht24-api-key` und `eRecht24-plugin-key` übertragen, niemals über URL-Parameter.
 - Keine Schlüssel über `vite.define` oder das virtuelle Inhaltsmodul in erzeugten Code einsetzen.
-- Keine vollständigen Fehler-, Request- oder Response-Objekte protokollieren. Fehlermeldungen kontrolliert erzeugen und bekannte Schlüsselwerte auch in extern gelieferten Hinweisen vor der Ausgabe entfernen.
+- Keine vollständigen Fehler-, Request- oder Response-Objekte protokollieren. Eigene Fehlermeldungen kontrolliert und ohne Schlüsselwerte erzeugen; extern gelieferte Hinweise als Klartext ohne Steuerzeichen ausgeben.
 - `.env`-Dateien und Testschlüssel vom veröffentlichten Paket ausschließen.
 
 ### Fehlerbehandlung
@@ -241,7 +241,7 @@ Diese Funktionen gehören nicht zum Umfang der ersten Version. Der erste Schwerp
 - Social-Media-Datenschutz mit aktivierter und deaktivierter Dokumentauswahl prüfen: Ohne Auswahl erfolgt kein Abruf; bei Auswahl werden vorhandene Texte gerendert und fehlende Dokumente oder Sprachinhalte als Build-Fehler gemeldet.
 - Bei erfolgreichen Antworten genau einen Abruf je ausgewähltem Dokumenttyp nachweisen, auch bei DE und EN im selben Build sowie mehrfacher Komponentenverwendung. Wiederholungsversuche separat prüfen.
 - Den Abruf aller konfigurierten Dokumente beim Build prüfen, auch wenn eine Seite sie nicht verwendet.
-- Warnungen sichtbar ausgeben, dabei Schlüsselwerte entfernen und den Build bei ansonsten gültigen Inhalten fortsetzen.
+- Warnungen als Klartext ohne Steuerzeichen ausgeben und den Build bei ansonsten gültigen Inhalten fortsetzen.
 - `.env`-Dateien, Ausführungsmodi, ein abweichendes Projektverzeichnis und den Vorrang vorhandener Umgebungsvariablen prüfen.
 - Ohne Schlüssel und ohne Netz `astro sync`, `astro check` sowie `astro preview` eines vorhandenen Builds ausführen. Für `astro dev` den Abruf beim ersten Bedarf, gemeinsame laufende Anfragen und das Neuladen nach einem Neustart prüfen.
 
@@ -279,7 +279,7 @@ Automatisiert geprüft:
 - Neun API-/Konfigurationstests unter Node 22.12.0 und 24.21.0: Dokumentauswahl, Sprachinhalte, unverändertes HTML, fehlende Schlüssel, ungültige Antworten, Warnungen, HTTP-Fehler, Retry-After und Timeout auch bei hängendem Response-Body.
 - Installation eines echten `npm pack`-Archivs in getrennte statische und SSR-Testprojekte. Beide rendern Deutsch, Englisch und Social-Media-Datenschutz mit genau einem Abruf je Dokumenttyp.
 - `astro sync` und `astro check` ohne Schlüssel; `astro preview` ohne erneuten Abruf; gemeinsame Dev-Anfragen, Wiederverwendung und neuer Abruf nach Neustart.
-- Fehlgeschlagene Builds bei fehlenden Schlüsseln, HTTP 401, fehlender englischer Fassung und leerem Text. Warnungen werden ausgegeben, Schlüsselwerte darin entfernt.
+- Fehlgeschlagene Builds bei fehlenden Schlüsseln, HTTP 401, fehlender englischer Fassung und leerem Text. Warnungen werden als Klartext ohne Steuerzeichen ausgegeben.
 - Eigenes Env-Verzeichnis, `--mode staging` und Vorrang gesetzter Umgebungsvariablen.
 - Keine künstlichen Testschlüssel in Paketdateien, Logs und vollständigen Build-Verzeichnissen einschließlich SSR-Dateien. Statische Seiten enthalten die unveränderten Testtexte ohne Browser-JavaScript.
 

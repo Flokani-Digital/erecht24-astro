@@ -39,6 +39,6 @@ Der Plugin-Key ist fest im Paket enthalten. Setze `ERECHT24_PLUGIN_KEY` nur, wen
 ## Sicherheit
 
 - Schlüssel werden ausschließlich als Header an die feste HTTPS-Adresse der eRecht24-API gesendet.
-- Warnungen und Fehlermeldungen entfernen bekannte Schlüsselwerte aus dem Text.
-- Enthält eine API-Antwort den Projekt-API-Key im Rechtstext selbst, bricht der Build ab.
+- Eigene Fehlermeldungen enthalten keine Schlüsselwerte.
+- Rechtstexte werden unverändert übernommen. API-Warnungen erscheinen als Klartext ohne Steuerzeichen; Schlüsselwerte werden darin nicht ersetzt.
 - Schlüssel müssen aus druckbaren ASCII-Zeichen ohne Leerzeichen bestehen; sonst bricht der Build ab, ohne den Wert auszugeben.

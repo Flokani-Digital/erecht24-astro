@@ -22,7 +22,6 @@ Alle Meldungen beginnen mit `[@flokani.digital/erecht24-astro]`.
 | `eRecht24 nicht erreichbar, Rechtstexte vom <Datum> aus dem Cache verwendet.` (Warnung) | `fallbackToCache` hat einen Ausfall überbrückt | Build läuft weiter; prüfen, ob eRecht24 wieder erreichbar ist und neu bauen |
 | `Kein nutzbarer Cache: …` | Ausfall bei aktivem `fallbackToCache`, aber kein oder abgelaufener Stand, beschädigte Datei oder abweichende Auswahl | Später neu bauen. Cache-Verzeichnis in CI erhalten, `maxAgeDays` prüfen |
 | `<typ>: Die API-Antwort enthält kein gültiges JSON.` / `Unerwartete Antwortstruktur.` | Ungültige Antwort, etwa durch einen Proxy | Netzwerkpfad prüfen, Fehler an eRecht24 melden |
-| `<typ>: Die API-Antwort enthält vertrauliche Zugangsdaten.` | Der Rechtstext enthält den Projekt-API-Key | Text in eRecht24 prüfen; Key gegebenenfalls neu erzeugen |
 
 ## Konfiguration
 

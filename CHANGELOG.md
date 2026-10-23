@@ -5,6 +5,7 @@
 - Astro-Integration: eRecht24-Rechtstexte (Impressum, Datenschutzerklärung, Social-Media-Datenschutz) beim Build abrufen.
 - Komponente `LegalText.astro` mit `type`, `lang` und `class`.
 - Deutsch und Englisch aus demselben Abruf, Timeout, Wiederholungen und Warnungsausgabe.
+- Rechtstexte werden auch bei Übereinstimmungen mit dem Projekt-API-Key übernommen. API-Warnungen erscheinen als Klartext ohne Steuerzeichen und ohne Ersetzung von Schlüsselwerten; eigene Fehlermeldungen enthalten weiterhin keine Schlüsselwerte.
 - Option `fallbackToCache`: im Build bei vorübergehendem eRecht24-Ausfall den letzten erfolgreichen Stand (mit Altersgrenze und Warnung) verwenden. Standardmäßig aus.
 - Der Cache-Fallback ist über einen SHA-256-Fingerabdruck an den Projekt-API-Key gebunden und verwirft Cache-Dateien ohne passende Projektzuordnung.
 - Der Build leert `dist/` vor dem Kompilieren, damit Ausgaben gelöschter Quellen nicht im NPM-Archiv verbleiben.

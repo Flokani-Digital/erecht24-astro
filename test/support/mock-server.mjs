@@ -42,7 +42,7 @@ export async function createMockServer() {
     const data = { ...texts[type], warnings: '', created: '2026-01-01', modified: '2026-01-02' };
     if (scenario === 'missing-en') data.html_en = '';
     if (scenario === 'empty') data.html_de = '<p>&nbsp;&#160;\u200b</p>';
-    if (scenario === 'warning') data.warnings = `<p>Bitte prüfen: ${apiKey} ${pluginKey}</p>`;
+    if (scenario === 'warning') data.warnings = '<p>Bitte prüfen: Hinweise zur Einbindung.</p>';
     const send = () => { if (!response.destroyed) response.end(JSON.stringify(data)); };
     if (gate) {
       gate.reached();

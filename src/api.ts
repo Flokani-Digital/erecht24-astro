@@ -52,14 +52,6 @@ export function plainText(html: string): string {
   return textOf(parseFragment(html)).replace(/[\s\u200b-\u200d\ufeff]+/gu, ' ').trim();
 }
 
-function redact(message: string, credentials: Credentials): string {
-  let safe = message;
-  for (const secret of [credentials.apiKey, credentials.pluginKey].sort((a, b) => b.length - a.length)) {
-    safe = safe.split(secret).join('[entfernt]');
-  }
-  return safe;
-}
-
 function retryDelay(response: Response, attempt: number, now: () => number): number {
   const backoff = 1000 * 2 ** attempt;
   const header = response.headers.get('retry-after');
@@ -143,18 +135,13 @@ export async function fetchDocuments(
       if (typeof html !== 'string' || !plainText(html)) {
         throw new Error(`[@flokani.digital/erecht24-astro] ${type} (${lang}): Rechtstext fehlt oder ist leer.`);
       }
-      // Do not silently alter legal content; reject a response reflecting the project key.
-      // The plugin key is public and therefore not checked.
-      if (html.includes(credentials.apiKey)) {
-        throw new Error(`[@flokani.digital/erecht24-astro] ${type}: Die API-Antwort enthält vertrauliche Zugangsdaten.`);
-      }
       translations[lang] = html;
     }
     if (record.warnings != null && typeof record.warnings !== 'string') {
       throw new Error(`[@flokani.digital/erecht24-astro] ${type}: Ungültiges warnings-Feld.`);
     }
     if (typeof record.warnings === 'string') {
-      const message = redact(plainText(record.warnings), credentials)
+      const message = plainText(record.warnings)
         .replace(/[\u0000-\u001f\u007f-\u009f]/gu, ' ');
       if (message) warn(`${type}: ${message}`);
     }

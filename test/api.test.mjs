@@ -74,8 +74,7 @@ test('Ein Abruf pro Dokument, beide Sprachen und unverändertes Original-HTML', 
 test('Markup ohne Inhalt, fehlende Sprachen und ungültige Antworten brechen ohne Retry ab', async () => {
   assert.equal(plainText('<p>&nbsp;&#160;\u200b</p><!-- comment --><script>ignored</script><style>ignored</style>'), '');
   for (const data of [null, [], {}, { html_de: 42 }, { html_de: '' }, { html_de: '<div> </div>' },
-    { html_de: '<p>&nbsp;&#160;\u200b</p>' }, { ...texts.imprint, warnings: [] },
-    { html_de: `<p>${apiKey}</p>` }]) {
+    { html_de: '<p>&nbsp;&#160;\u200b</p>' }, { ...texts.imprint, warnings: [] }]) {
     let calls = 0;
     await assert.rejects(fetchDocuments(selected, credentials, noop, { fetch: async () => {
       calls++; return json(data);
@@ -88,19 +87,23 @@ test('Markup ohne Inhalt, fehlende Sprachen und ungültige Antworten brechen ohn
     { fetch: async () => new Response(`invalid ${pluginKey}`) }), /kein gültiges JSON/);
 });
 
-test('Öffentlicher Plugin-Key im Rechtstext bricht den Abruf nicht ab', async () => {
-  const html = `<p>Plugin ${pluginKey}</p>`;
-  const result = await fetchDocuments(selected, credentials, noop, { fetch: async () => json({ html_de: html }) });
-  assert.equal(result.documents.imprint.de, html);
+test('Rechtstexte bleiben bei Übereinstimmungen mit Zugangsschlüsseln unverändert', async () => {
+  for (const key of [apiKey, pluginKey]) {
+    const html = `<p>${key}</p>`;
+    const result = await fetchDocuments(selected, credentials, noop, { fetch: async () => json({ html_de: html }) });
+    assert.equal(result.documents.imprint.de, html);
+  }
 });
 
-test('Warnungen sind lesbar und enthalten keine Zugangsschlüssel', async () => {
+test('Warnungen erscheinen als Klartext ohne Steuerzeichen', async () => {
   const warnings = [];
   const result = await fetchDocuments(selected, credentials, (message) => warnings.push(message), {
-    fetch: async () => json({ ...texts.imprint, warnings: `<p>Bitte &amp; prüfen: ${apiKey} ${pluginKey}</p>` }),
+    fetch: async () => json({ ...texts.imprint,
+      warnings: `<p>Bitte &amp; prüfen: ${apiKey}\u001b${pluginKey}\u007fEnde\u009f!</p><script>ignored</script>`,
+    }),
   });
   assert.equal(result.documents.imprint.de, texts.imprint.html_de);
-  assert.deepEqual(warnings, ['imprint: Bitte & prüfen: [entfernt] [entfernt]']);
+  assert.deepEqual(warnings, [`imprint: Bitte & prüfen: ${apiKey} ${pluginKey} Ende !`]);
 });
 
 test('Dauerhafte HTTP-Fehler und Redirects werden nicht wiederholt', async () => {

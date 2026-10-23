@@ -51,7 +51,6 @@ Wichtig:
 - Ein Dokument ist im eRecht24-Projekt nicht angelegt (HTTP 404) oder der Zugriff wird verweigert (HTTP 401)
 - Ein Text fehlt in einer gewählten Sprache oder ist leer
 - Die API-Antwort ist kein gültiges JSON oder hat eine unerwartete Struktur
-- Die Antwort enthält den Projekt-API-Key im Text
 - Netzwerkfehler oder Timeout nach 3 Versuchen (ohne `fallbackToCache` oder ohne nutzbaren Stand)
 
 Es gibt **keinen stillen Rückgriff** auf alte Texte. Ein fehlgeschlagener Build soll das letzte erfolgreiche Deployment bestehen lassen; dafür sorgt dein Deployment-System.
@@ -69,7 +68,7 @@ Wird stattdessen der Cache-Fallback genutzt, erscheint nur der Start sowie die W
 
 ## Warnungen
 
-eRecht24 kann zu einem Dokument Hinweise (`warnings`) mitliefern, etwa zur Einbindung. Sie erscheinen als lesbarer Text im Astro-Log. Warnungen verhindern den Build nicht, sollten aber gelesen werden, weil sie rechtlich relevante Hinweise enthalten können.
+eRecht24 kann zu einem Dokument Hinweise (`warnings`) mitliefern, etwa zur Einbindung. Sie erscheinen als Klartext ohne Steuerzeichen im Astro-Log; Schlüsselwerte werden darin nicht ersetzt. Warnungen verhindern den Build nicht, sollten aber gelesen werden, weil sie rechtlich relevante Hinweise enthalten können.
 
 ## Texte aktuell halten
 
