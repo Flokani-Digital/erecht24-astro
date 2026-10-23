@@ -30,7 +30,7 @@ test('Dev: fehlgeschlagener Abruf wird beim nächsten Request erneut versucht', 
     config: { root: pathToFileURL(root + '/') },
     command: 'dev',
     updateConfig: ({ vite }) => { [plugin] = vite.plugins; },
-    logger: { warn: () => {} },
+    logger: { warn: () => {}, info: () => {} },
   });
 
   await assert.rejects(plugin.load(resolvedId), /ERECHT24_API_KEY wird/);
@@ -47,7 +47,7 @@ test('Client-Import wird bei Auflösung und Laden zurückgewiesen; sync bleibt o
   const integration = rechtstexte();
   integration.hooks['astro:config:setup']({
     config: { root: pathToFileURL(tmpdir() + '/') }, command: 'sync',
-    updateConfig: ({ vite }) => { [plugin] = vite.plugins; }, logger: { warn: () => {} },
+    updateConfig: ({ vite }) => { [plugin] = vite.plugins; }, logger: { warn: () => {}, info: () => {} },
   });
   const client = { environment: { name: 'client' } };
   assert.throws(() => plugin.resolveId.call(client, 'virtual:flokani-erecht24-astro'), /Frontmatter/);
@@ -71,6 +71,7 @@ async function buildProject(t, options, command = 'build') {
   process.env.ERECHT24_API_KEY = apiKey;
   process.env.ERECHT24_PLUGIN_KEY = pluginKey;
   const warnings = [];
+  const infos = [];
   // Every run is a fresh integration instance, like a new `astro build` process.
   const run = async (status) => {
     let calls = 0;
@@ -80,12 +81,12 @@ async function buildProject(t, options, command = 'build') {
     integration.hooks['astro:config:setup']({
       config: { root: pathToFileURL(root + '/'), cacheDir: pathToFileURL(join(root, 'cache') + '/') },
       command, updateConfig: ({ vite }) => { [plugin] = vite.plugins; },
-      logger: { warn: (message) => warnings.push(message) },
+      logger: { warn: (message) => warnings.push(message), info: (message) => infos.push(message) },
     });
     if (command === 'build') await integration.hooks['astro:build:start']();
     return { calls, load: () => plugin.load.call({ environment: { name: 'prerender' } }, resolvedId) };
   };
-  return { root, warnings, run };
+  return { root, warnings, infos, run };
 }
 
 test('Build mit fallbackToCache: Erfolg schreibt Cache, 503 nutzt ihn mit Warnung', { timeout: 20_000 }, async (t) => {
@@ -119,4 +120,16 @@ test('Build ohne Option, bei 401 oder ohne Cache bricht ab; dev fällt nie zurü
   const failing = await dev.run(503);
   await assert.rejects(failing.load(), /HTTP 503/);
   await assert.rejects(readFile(join(dev.root, 'cache/erecht24-astro/snapshot.json')), /ENOENT/, 'dev schreibt keinen Cache');
+});
+
+test('Abruf meldet Start und Erfolg; Cache-Fallback meldet keinen Erfolg', { timeout: 20_000 }, async (t) => {
+  const { infos, run } = await buildProject(t, { fallbackToCache: { maxAgeDays: 7 } });
+  await run(200);
+  assert.deepEqual(infos, [
+    'API-Abruf gestartet: imprint',
+    'API-Abruf erfolgreich: 1 Dokument, Sprache de',
+  ]);
+  infos.length = 0;
+  await run(503);
+  assert.deepEqual(infos, ['API-Abruf gestartet: imprint']);
 });

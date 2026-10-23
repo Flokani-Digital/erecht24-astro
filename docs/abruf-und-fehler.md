@@ -56,6 +56,17 @@ Wichtig:
 
 Es gibt **keinen stillen Rückgriff** auf alte Texte. Ein fehlgeschlagener Build soll das letzte erfolgreiche Deployment bestehen lassen; dafür sorgt dein Deployment-System.
 
+## Log-Ausgabe
+
+Jeder Abruf wird im Astro-Log sichtbar:
+
+```text
+[@flokani.digital/erecht24-astro] API-Abruf gestartet: imprint, privacyPolicy
+[@flokani.digital/erecht24-astro] API-Abruf erfolgreich: 2 Dokumente, Sprache de
+```
+
+Wird stattdessen der Cache-Fallback genutzt, erscheint nur der Start sowie die Warnung, aber keine Erfolgsmeldung.
+
 ## Warnungen
 
 eRecht24 kann zu einem Dokument Hinweise (`warnings`) mitliefern, etwa zur Einbindung. Sie erscheinen als lesbarer Text im Astro-Log. Warnungen verhindern den Build nicht, sollten aber gelesen werden, weil sie rechtlich relevante Hinweise enthalten können.

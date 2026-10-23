@@ -33,7 +33,11 @@ export default function rechtstexte(options: RechtstexteOptions = {}): AstroInte
             });
             const warn = (message: string) => logger.warn(message);
             try {
+              logger.info(`API-Abruf gestartet: ${selection.documents.join(', ')}`);
               snapshot = await fetchDocuments(selection, credentials, warn);
+              const count = Object.keys(snapshot.documents).length;
+              logger.info(`API-Abruf erfolgreich: ${count} ${count === 1 ? 'Dokument' : 'Dokumente'}, ` +
+                `${selection.languages.length === 1 ? 'Sprache' : 'Sprachen'} ${selection.languages.join(', ')}`);
             } catch (error) {
               // Only a temporary outage during a build may fall back; dev stays live and loud.
               if (command !== 'build' || !selection.fallbackToCache || !(error instanceof TransientApiError)) throw error;
