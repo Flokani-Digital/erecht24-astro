@@ -61,10 +61,10 @@ export async function readCache(
   }
   const snapshot: ContentSnapshot = { languages: [...selection.languages], documents: {} };
   for (const type of selection.documents) {
-    const stored = Object.hasOwn(documents, type) ? documents[type] : undefined;
+    const storedTranslations = Object.hasOwn(documents, type) ? documents[type] : undefined;
     const translations: Partial<Record<'de' | 'en', string>> = {};
     for (const lang of selection.languages) {
-      const html = stored && Object.hasOwn(stored, lang) ? stored[lang] : undefined;
+      const html = storedTranslations && Object.hasOwn(storedTranslations, lang) ? storedTranslations[lang] : undefined;
       if (typeof html !== 'string' || !plainText(html)) {
         throw new Error(`${prefix}: ${type} (${lang}) fehlt oder passt nicht zur aktuellen Konfiguration.`);
       }
