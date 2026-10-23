@@ -17,7 +17,6 @@ export class TransientApiError extends Error {}
 export interface ApiDependencies {
   fetch?: typeof globalThis.fetch;
   sleep?: (ms: number) => Promise<void>;
-  now?: () => number;
   timeoutMs?: number;
 }
 
@@ -52,15 +51,13 @@ export function plainText(html: string): string {
   return textOf(parseFragment(html)).replace(/[\s\u200b-\u200d\ufeff]+/gu, ' ').trim();
 }
 
-function retryDelay(response: Response, attempt: number, now: () => number): number {
+function retryDelay(response: Response, attempt: number): number {
   const backoff = 1000 * 2 ** attempt;
   const header = response.headers.get('retry-after');
   if (response.status !== 429 || !header) return backoff;
-  const seconds = Number(header);
-  const delay = Number.isFinite(seconds) && seconds >= 0
-    ? seconds * 1000 : Date.parse(header) - now();
-  if (!Number.isFinite(delay)) return backoff;
-  return Math.max(backoff, delay, 0);
+  const delay = Number(header) * 1000;
+  if (!Number.isFinite(delay) || delay < 0) return backoff;
+  return Math.max(backoff, delay);
 }
 
 async function readDocument(
@@ -68,7 +65,6 @@ async function readDocument(
 ): Promise<unknown> {
   const request = dependencies.fetch ?? globalThis.fetch;
   const sleep = dependencies.sleep ?? ((ms) => new Promise((resolve) => setTimeout(resolve, ms)));
-  const now = dependencies.now ?? Date.now;
   const timeoutMs = dependencies.timeoutMs ?? 10_000;
   for (let attempt = 0; attempt < 3; attempt++) {
     const signal = AbortSignal.timeout(timeoutMs);
@@ -94,7 +90,7 @@ async function readDocument(
       continue;
     }
     if (!response.ok) {
-      const delay = retryDelay(response, attempt, now);
+      const delay = retryDelay(response, attempt);
       if (retryStatuses.has(response.status) && attempt < 2 && delay <= 10_000) {
         await sleep(delay);
         continue;

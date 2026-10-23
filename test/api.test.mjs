@@ -138,17 +138,20 @@ test('Vorübergehende Fehler: höchstens drei Versuche mit steigender Wartezeit'
   assert.equal(snapshot.documents.imprint.de, texts.imprint.html_de);
 });
 
-test('Retry-After akzeptiert Sekunden und HTTP-Datum und bricht bei mehr als 10 Sekunden ab', async () => {
-  const now = Date.parse('2026-01-01T00:00:00Z');
-  for (const [header, delay] of [['3', 3000], ['Thu, 01 Jan 2026 00:00:04 GMT', 4000], ['invalid', 1000]]) {
+test('Retry-After wertet nur Sekunden aus und bricht über 10 Sekunden sofort ab', async () => {
+  for (const [header, expected] of [
+    ['3', [3000, 3000]], ['10', [10_000, 10_000]], ['0', [1000, 2000]], ['-1', [1000, 2000]],
+    ['Thu, 01 Jan 2099 00:00:04 GMT', [1000, 2000]], ['invalid', [1000, 2000]],
+  ]) {
     let calls = 0;
     const delays = [];
     await fetchDocuments(selected, credentials, noop, {
-      fetch: async () => ++calls === 1
+      fetch: async () => ++calls < 3
         ? new Response('', { status: 429, headers: { 'Retry-After': header } }) : json(texts.imprint),
-      now: () => now, sleep: async (ms) => { delays.push(ms); },
+      sleep: async (ms) => { delays.push(ms); },
     });
-    assert.deepEqual(delays, [delay]);
+    assert.equal(calls, 3);
+    assert.deepEqual(delays, expected);
   }
   let calls = 0;
   await assert.rejects(fetchDocuments(selected, credentials, noop, {

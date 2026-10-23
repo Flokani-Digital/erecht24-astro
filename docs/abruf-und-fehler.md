@@ -21,7 +21,7 @@ Das gilt auch mit Node- und Cloudflare-Adapter in deren Standardkonfiguration. I
 - Jeder Versuch hat **10 Sekunden**, einschließlich des Response-Bodys.
 - Zwischen den Versuchen wird **1 s**, dann **2 s** gewartet.
 - Wiederholt wird bei Netzwerkfehlern, Timeouts und HTTP `429`, `500`, `502`, `503`, `504`.
-- Bei `429` wird `Retry-After` beachtet (Sekunden oder HTTP-Datum). Verlangt der Server mehr als 10 Sekunden, bricht der Abruf ab.
+- Bei `429` wird `Retry-After` als Sekundenangabe beachtet. HTTP-Datumswerte und ungültige Angaben verwenden die reguläre Wartezeit von 1 s, dann 2 s. Verlangt der Server mehr als 10 Sekunden, bricht der Abruf ab.
 - Alle anderen HTTP-Fehler (zum Beispiel `401`, `404`) und Weiterleitungen werden nicht wiederholt.
 
 ## Ausfall: Fallback auf den letzten Stand

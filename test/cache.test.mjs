@@ -8,7 +8,7 @@ import { normalizeOptions } from '../dist/types.js';
 import { apiKey, pluginKey, texts } from './support/mock-server.mjs';
 
 const day = 86_400_000;
-const now = Date.parse('2026-01-10T12:00:00Z');
+const now = Date.UTC(2026, 0, 10, 12);
 const selection = normalizeOptions({ documents: ['imprint'], languages: ['de', 'en'] });
 const snapshot = {
   languages: ['de', 'en'],
