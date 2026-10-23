@@ -11,7 +11,7 @@
     ".": { "types": "./dist/index.d.ts", "import": "./dist/index.js" },
     "./LegalText.astro": "./components/LegalText.astro"
   },
-  "files": ["dist", "components", "docs/*.md"],
+  "files": ["dist", "components"],
   "keywords": ["astro-integration", "astro-component", "erecht24", "rechtstexte"],
   "repository": { "type": "git", "url": "git+https://github.com/Flokani-Digital/erecht24-astro.git" },
   "homepage": "https://github.com/Flokani-Digital/erecht24-astro#readme",
