@@ -6,7 +6,6 @@ const root = new URL('../', import.meta.url);
 const mock = await createMockServer();
 console.log('Demo mit künstlichen Rechtstexten. Es wird keine eRecht24-Verbindung aufgebaut.');
 const child = spawn(process.execPath, [
-  '--import', fileURLToPath(new URL('../test/support/mock-fetch.mjs', import.meta.url)),
   fileURLToPath(new URL('../node_modules/astro/bin/astro.mjs', import.meta.url)),
   'dev', '--root', 'examples/static', '--host', '127.0.0.1', '--port', '4337', '--ignore-lock',
 ], {

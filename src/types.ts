@@ -46,10 +46,13 @@ export function normalizeOptions(options: RechtstexteOptions): Selection {
   const selection: Selection = { documents: [...new Set(documents)], languages: [...new Set(selectedLanguages)] };
   const fallback = options.fallbackToCache;
   if (fallback !== undefined) {
-    const maxAgeDays = fallback === true ? defaultMaxAgeDays :
-      fallback && typeof fallback === 'object' && !Array.isArray(fallback) &&
-        Object.keys(fallback).every((key) => key === 'maxAgeDays')
-        ? fallback.maxAgeDays ?? defaultMaxAgeDays : NaN;
+    let maxAgeDays = NaN;
+    if (fallback === true) {
+      maxAgeDays = defaultMaxAgeDays;
+    } else if (fallback && typeof fallback === 'object' && !Array.isArray(fallback) &&
+      Object.keys(fallback).every((key) => key === 'maxAgeDays')) {
+      maxAgeDays = fallback.maxAgeDays ?? defaultMaxAgeDays;
+    }
     if (!Number.isInteger(maxAgeDays) || maxAgeDays < 1 || maxAgeDays > 30) {
       throw new Error('[@flokani.digital/erecht24-astro] fallbackToCache muss true oder { maxAgeDays } mit einer ganzen Zahl von 1 bis 30 sein.');
     }

@@ -11,7 +11,7 @@
 
 Die Dokumente werden nacheinander abgerufen. Bei einem dauerhaften Fehler stoppt der Abruf sofort.
 
-In `dev` wird ein erfolgreicher Abruf für die Lebensdauer des Servers gespeichert. Nach einem Fehler (zum Beispiel falscher Key) den Fehler beheben und den Dev-Server neu starten; ein Neustart lädt außerdem einen frischen Stand.
+In `dev` wird nach dem ersten erfolgreichen Abruf nicht erneut abgerufen. Der Stand bleibt für die Lebensdauer des Servers erhalten, auch bei Seitenänderungen und HMR. Änderungen an Rechtstexten in eRecht24 werden deshalb erst nach einem Neustart des Dev-Servers geladen. Nach einem Fehler (zum Beispiel falscher Key) den Fehler beheben und den Dev-Server neu starten.
 
 Das gilt auch mit Node- und Cloudflare-Adapter in deren Standardkonfiguration. In Produktion werden ausschließlich die beim Build eingebetteten Texte ausgegeben; ein Abruf zur Laufzeit findet nicht statt.
 
@@ -21,7 +21,7 @@ Das gilt auch mit Node- und Cloudflare-Adapter in deren Standardkonfiguration. I
 - Jeder Versuch hat **10 Sekunden**, einschließlich des Response-Bodys.
 - Zwischen den Versuchen wird **1 s**, dann **2 s** gewartet.
 - Wiederholt wird bei Netzwerkfehlern, Timeouts und HTTP `429`, `500`, `502`, `503`, `504`.
-- Bei `429` wird `Retry-After` beachtet (Sekunden oder HTTP-Datum). Verlangt der Server mehr als 10 Sekunden, bricht der Abruf ab.
+- Bei `429` wird `Retry-After` als Sekundenangabe beachtet. HTTP-Datumswerte und ungültige Angaben verwenden die reguläre Wartezeit von 1 s, dann 2 s. Eine Sekundenangabe über 10 s führt sofort zum Fehler, ohne Wartezeit oder weiteren Versuch. Bei aktiviertem `fallbackToCache` kann der Build stattdessen einen nutzbaren gespeicherten Stand verwenden.
 - Alle anderen HTTP-Fehler (zum Beispiel `401`, `404`) und Weiterleitungen werden nicht wiederholt.
 
 ## Ausfall: Fallback auf den letzten Stand
@@ -34,7 +34,7 @@ rechtstexte({ fallbackToCache: { maxAgeDays: 7 } }) // oder fallbackToCache: tru
 
 So funktioniert es:
 
-- Jeder Build ruft weiterhin frisch ab. Nach einem vollständig erfolgreichen Abruf speichert das Paket die Texte in `<cacheDir>/erecht24-astro/snapshot.json`. Standard ist `node_modules/.astro/`; Astro-Option `cacheDir`. Die Datei enthält nur Rechtstexte und den Abrufzeitpunkt, keine Schlüssel.
+- Jeder Build ruft weiterhin frisch ab. Nach einem vollständig erfolgreichen Abruf speichert das Paket die Texte in `<cacheDir>/erecht24-astro/snapshot.json`. Standard ist `node_modules/.astro/`; Astro-Option `cacheDir`. Die Datei enthält Rechtstexte, den Abrufzeitpunkt und einen SHA-256-Fingerabdruck des Projekt-API-Keys, keine Schlüssel. Nach einem Wechsel des Projekt-API-Keys und bei älteren Cache-Dateien ohne Fingerabdruck ist zunächst ein erfolgreicher Abruf erforderlich.
 - Schlägt der Abruf nach allen Wiederholungen **vorübergehend** fehl (Netzwerkfehler, Timeout, HTTP `429`, `500`, `502`, `503`, `504`), verwendet der Build den gespeicherten Stand und gibt eine **Warnung** mit dem Datum aus.
 - Ist kein Stand vorhanden, er ist älter als `maxAgeDays`, passt nicht zu `documents`/`languages` oder ist beschädigt, bricht der Build ab. Die Meldung nennt den Grund.
 - **Kein** Fallback bei `401`, `403`, `404`, fehlendem Key, ungültiger Antwort, leerem oder fehlendem Text. Das sind Konfigurations- oder Inhaltsfehler.
@@ -51,7 +51,6 @@ Wichtig:
 - Ein Dokument ist im eRecht24-Projekt nicht angelegt (HTTP 404) oder der Zugriff wird verweigert (HTTP 401)
 - Ein Text fehlt in einer gewählten Sprache oder ist leer
 - Die API-Antwort ist kein gültiges JSON oder hat eine unerwartete Struktur
-- Die Antwort enthält den Projekt-API-Key im Text
 - Netzwerkfehler oder Timeout nach 3 Versuchen (ohne `fallbackToCache` oder ohne nutzbaren Stand)
 
 Es gibt **keinen stillen Rückgriff** auf alte Texte. Ein fehlgeschlagener Build soll das letzte erfolgreiche Deployment bestehen lassen; dafür sorgt dein Deployment-System.
@@ -69,7 +68,7 @@ Wird stattdessen der Cache-Fallback genutzt, erscheint nur der Start sowie die W
 
 ## Warnungen
 
-eRecht24 kann zu einem Dokument Hinweise (`warnings`) mitliefern, etwa zur Einbindung. Sie erscheinen als lesbarer Text im Astro-Log. Warnungen verhindern den Build nicht, sollten aber gelesen werden, weil sie rechtlich relevante Hinweise enthalten können.
+eRecht24 kann zu einem Dokument Hinweise (`warnings`) mitliefern, etwa zur Einbindung. Sie erscheinen als Klartext ohne Steuerzeichen im Astro-Log; Schlüsselwerte werden darin nicht ersetzt. Warnungen verhindern den Build nicht, sollten aber gelesen werden, weil sie rechtlich relevante Hinweise enthalten können.
 
 ## Texte aktuell halten
 

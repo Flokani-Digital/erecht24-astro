@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict';
-import { mkdtemp, readFile, rm } from 'node:fs/promises';
+import { mkdtemp, readFile, rm, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { pathToFileURL } from 'node:url';
@@ -102,6 +102,35 @@ test('Build mit fallbackToCache: Erfolg schreibt Cache, 503 nutzt ihn mit Warnun
   assert.match(warnings[0], /nicht erreichbar.*aus dem Cache verwendet.*HTTP 503/);
   assert.ok(!warnings[0].includes(apiKey) && !warnings[0].includes(pluginKey));
   assert.equal(await fallback.load(), await fresh.load(), 'Identisches Modul wie beim frischen Abruf');
+});
+
+test('Build mit fallbackToCache: Projektwechsel erlaubt bei 503 keinen fremden Cache', { timeout: 20_000 }, async (t) => {
+  const { warnings, infos, run } = await buildProject(t, { fallbackToCache: true });
+  await run(200);
+  const otherApiKey = 'fixture-other-project-api-key-never-publish-91243';
+  process.env.ERECHT24_API_KEY = otherApiKey;
+  infos.length = 0;
+
+  await assert.rejects(run(503), (error) => {
+    assert.match(error.message, /HTTP 503[\s\S]*Kein nutzbarer Cache.*Projektzuordnung/);
+    for (const key of [apiKey, otherApiKey, pluginKey]) assert.ok(!error.message.includes(key));
+    assert.doesNotMatch(error.message, /[a-f0-9]{64}/, 'Kein Fingerabdruck in der Fehlermeldung');
+    return true;
+  });
+  assert.deepEqual(warnings, []);
+  assert.deepEqual(infos, ['API-Abruf gestartet: imprint']);
+});
+
+test('Build mit fallbackToCache: Alter Cache ohne Projektzuordnung wird bei 503 abgelehnt', { timeout: 20_000 }, async (t) => {
+  const { root, warnings, run } = await buildProject(t, { fallbackToCache: true });
+  await run(200);
+  const file = join(root, 'cache/erecht24-astro/snapshot.json');
+  const stored = JSON.parse(await readFile(file, 'utf8'));
+  delete stored.projectFingerprint;
+  await writeFile(file, JSON.stringify(stored));
+
+  await assert.rejects(run(503), /HTTP 503[\s\S]*Kein nutzbarer Cache.*Projektzuordnung/);
+  assert.deepEqual(warnings, []);
 });
 
 test('Build ohne Option, bei 401 oder ohne Cache bricht ab; dev fällt nie zurück', { timeout: 40_000 }, async (t) => {

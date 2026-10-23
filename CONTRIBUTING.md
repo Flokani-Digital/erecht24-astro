@@ -2,7 +2,7 @@
 
 Hinweise für alle, die am Paket `@flokani.digital/erecht24-astro` arbeiten. Die Nutzung des Pakets steht in der [README](README.md) und unter [docs/](docs/).
 
-Der vollständige Projektumfang und der Prüfstand stehen im [Projektplan](Projektplan.md).
+`vite` ist bewusst Peer-Dependency: `src/index.ts` importiert `loadEnv` direkt aus `vite`. Strikte Paketmanager wie pnpm lösen den Import sonst nicht auf; verwendet wird die von Astro installierte Version.
 
 ## Lokal entwickeln
 
@@ -45,12 +45,11 @@ Die automatisierten Tests decken insbesondere Folgendes ab:
 - Installation aus dem tatsächlichen NPM-Archiv, Komponentenexport und Typ-Injektion mit `astro check`.
 - Einen Abruf pro Dokument, gemeinsame laufende Dev-Anfragen, Cache-Erhalt über HMR und einen frischen Abruf nach echtem Serverneustart.
 - Einen fehlgeschlagenen Dev-Abruf (HTTP 401) über echtes HTTP mit kontrollierter Paketmeldung.
-- Erfolgreichen SSR-Build ohne `prerender` und Verweigerung der dynamischen Ausgabe erst beim Produktionsrendern.
+- Erfolgreiche Ausgabe der Rechtstexte auf Seiten ohne `prerender` mit allen drei Targets, ohne API-Abrufe oder Zugangsdaten zur Laufzeit.
 - Fehler, leere Texte, Warnungen, Wiederholungen und einen hängenden HTTP-Response-Body.
 - Abweichendes Env-Verzeichnis, Ausführungsmodus und Vorrang der Prozessumgebung.
 - Keine künstlichen Zugangsschlüssel in Paketdateien, Logs und vollständigen Build-Verzeichnissen, einschließlich SSR-Dateien.
 - Alle sechs Nutzer-Dokumentationen unter `docs/` im Paketarchiv, gültige relative Dokumentationslinks und den absoluten GitHub-Link auf `CONTRIBUTING.md` in der README.
-- Interne Links mit abschließendem Slash.
 
 Zum Test einer anderen Astro-Version können ausschließlich für den Testlauf Versionen vorgegeben werden. Dabei darf NPM fehlende Pakete aus der Registry nachladen:
 

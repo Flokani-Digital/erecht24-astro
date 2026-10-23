@@ -41,7 +41,7 @@ export default function rechtstexte(options: RechtstexteOptions = {}): AstroInte
             } catch (error) {
               // Only a temporary outage during a build may fall back; dev stays live and loud.
               if (command !== 'build' || !selection.fallbackToCache || !(error instanceof TransientApiError)) throw error;
-              const cached = await readCache(cachePath(), selection, selection.fallbackToCache.maxAgeDays)
+              const cached = await readCache(cachePath(), selection, selection.fallbackToCache.maxAgeDays, credentials.apiKey)
                 .catch((reason: unknown) => {
                   throw new Error(`${error.message}\n${reason instanceof Error ? reason.message : String(reason)}`);
                 });
@@ -51,7 +51,7 @@ export default function rechtstexte(options: RechtstexteOptions = {}): AstroInte
               return snapshot;
             }
             if (command === 'build' && selection.fallbackToCache) {
-              await writeCache(cachePath(), snapshot).catch(() => {
+              await writeCache(cachePath(), snapshot, credentials.apiKey).catch(() => {
                 warn('Der Cache für den Ausfall-Fallback konnte nicht geschrieben werden.');
               });
             }

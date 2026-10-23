@@ -1,8 +1,8 @@
 # Astro Rechtstexte für eRecht24
 
-`@flokani.digital/erecht24-astro` ist eine Astro-Integration, die Impressum, Datenschutzerklärung und optional die Datenschutzerklärung für Social Media aus deinem [eRecht24](https://www.e-recht24.de/)-Projekt beim Build abruft und als statisches HTML ausgibt. Im Browser deiner Besucher findet kein API-Aufruf statt.
+`@flokani.digital/erecht24-astro` ist eine Astro-Integration, die Impressum, Datenschutzerklärung und optional die Datenschutzerklärung für Social Media aus deinem [eRecht24](https://www.e-recht24.de/)-Projekt beim Build abruft und als HTML ausgibt. Im Browser deiner Besucher findet kein API-Aufruf statt.
 
-> **Status:** Das Paket ist noch nicht veröffentlicht (`private`, Lizenz offen). Bis zur Veröffentlichung kann es als lokales Archiv installiert werden, siehe [Installation](#installation).
+> **Status:** Das Paket ist noch nicht veröffentlicht (`private`). Bis zur Veröffentlichung kann es als lokales Archiv installiert werden, siehe [Installation](#installation).
 >
 > Kein offizielles Produkt von eRecht24. Die Rechtstexte stammen unverändert von eRecht24; für ihre Vollständigkeit, Aktualität und korrekte Einbindung bleibt der Betreiber der Website verantwortlich.
 
@@ -68,7 +68,7 @@ export const prerender = true;
 
 Für die Datenschutzerklärung dasselbe mit `type="privacyPolicy"`.
 
-In SSR-Projekten braucht **jede Rechtstextseite** `export const prerender = true;`, auch mit Node- oder Cloudflare-Adapter. Ohne diese Angabe kann der Build erfolgreich sein; beim dynamischen Rendern in Produktion verweigert die Komponente die Ausgabe. Die Standardkonfiguration des Cloudflare-Adapters mit `workerd` wird unterstützt; ein Override auf `prerenderEnvironment: 'node'` ist nicht nötig.
+Für Rechtstextseiten empfehlen wir `export const prerender = true;`, damit Astro sie bereits beim Build als HTML erzeugt. Ohne diese Angabe können Node- und Cloudflare-SSR-Seiten die beim Build geladenen Texte auch dynamisch ausgeben, ohne API-Abruf oder Zugangsdaten zur Laufzeit. Die Standardkonfiguration des Cloudflare-Adapters mit `workerd` wird unterstützt; ein Override auf `prerenderEnvironment: 'node'` ist nicht nötig.
 
 **4. Bauen**
 
@@ -76,7 +76,7 @@ In SSR-Projekten braucht **jede Rechtstextseite** `export const prerender = true
 npx astro build
 ```
 
-Der Build ruft die Texte ab und schreibt sie in die statischen Seiten. Fehlt der Key oder ein Text, bricht der Build mit einer verständlichen Meldung ab.
+Der Build lädt die Texte für die statische Ausgabe oder SSR. Fehlt der Key oder ein Text, bricht der Build mit einer verständlichen Meldung ab.
 
 ## Dokumentation
 
@@ -95,7 +95,7 @@ Zum Mitentwickeln siehe [CONTRIBUTING.md](https://github.com/Flokani-Digital/ere
 ## Wichtig zu wissen
 
 - **Aktualisierung nur per Build:** Änderungen in eRecht24 erscheinen erst nach einem neuen erfolgreichen Build und Deployment. Regelmäßige Builds sind Aufgabe deines Deployment-Systems.
-- **Kein stiller Fallback:** Es gibt keinen Rückgriff auf alte Texte. Ein fehlgeschlagener Build lässt das letzte erfolgreiche Deployment bestehen.
+- **Kein stiller Fallback:** Standardmäßig gibt es keinen Rückgriff auf alte Texte. Ein fehlgeschlagener Build lässt das letzte erfolgreiche Deployment bestehen. Optional nutzt `fallbackToCache` bei vorübergehenden eRecht24-Ausfällen den letzten erfolgreichen Stand desselben Projekts, siehe [Abruf und Fehler](docs/abruf-und-fehler.md).
 - **HTML unverändert:** Der Text wird nicht bereinigt oder verändert. Prüfe das echte HTML mit deinem Layout und deiner Content Security Policy.
 - **Keys:** Der API-Key ist geheim und gehört in ein Secret. Der Plugin-Key ist im Paket enthalten und kein Geheimnis.
 
@@ -108,3 +108,7 @@ Geplant sind Push-Benachrichtigungen von eRecht24, die über einen Deploy-Hook a
 - [eRecht24 OpenAPI](https://api.e-recht24.de/v2openapi.json)
 - [Astro Integration API](https://docs.astro.build/en/reference/integrations-reference/)
 - [Astro: Umgebungsvariablen](https://docs.astro.build/en/guides/environment-variables/)
+
+## Lizenz
+
+[MIT](LICENSE) © Flokani GmbH. Forks und eigene Integrationen sollten über `ERECHT24_PLUGIN_KEY` einen eigenen eRecht24-Developer-Key verwenden.

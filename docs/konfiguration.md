@@ -61,6 +61,6 @@ Diese Werte sind nicht konfigurierbar:
 | Zeitlimit pro Versuch | 10 Sekunden, einschließlich Antwort-Body |
 | Wartezeit zwischen Versuchen | 1 s, dann 2 s |
 | Wiederholt wird bei | Netzwerkfehler, Timeout, HTTP 429, 500, 502, 503, 504 |
-| `Retry-After` (bei 429) | wird beachtet, mehr als 10 s führt zum Abbruch |
+| `Retry-After` (bei 429) | Sekundenangaben werden beachtet; mehr als 10 s führt sofort zum Abruffehler, ohne Wartezeit oder weiteren Versuch |
 
 Mehr dazu in [Abruf und Fehlerverhalten](abruf-und-fehler.md).

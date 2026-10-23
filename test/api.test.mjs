@@ -74,8 +74,7 @@ test('Ein Abruf pro Dokument, beide Sprachen und unverändertes Original-HTML', 
 test('Markup ohne Inhalt, fehlende Sprachen und ungültige Antworten brechen ohne Retry ab', async () => {
   assert.equal(plainText('<p>&nbsp;&#160;\u200b</p><!-- comment --><script>ignored</script><style>ignored</style>'), '');
   for (const data of [null, [], {}, { html_de: 42 }, { html_de: '' }, { html_de: '<div> </div>' },
-    { html_de: '<p>&nbsp;&#160;\u200b</p>' }, { ...texts.imprint, warnings: [] },
-    { html_de: `<p>${apiKey}</p>` }]) {
+    { html_de: '<p>&nbsp;&#160;\u200b</p>' }, { ...texts.imprint, warnings: [] }]) {
     let calls = 0;
     await assert.rejects(fetchDocuments(selected, credentials, noop, { fetch: async () => {
       calls++; return json(data);
@@ -88,19 +87,23 @@ test('Markup ohne Inhalt, fehlende Sprachen und ungültige Antworten brechen ohn
     { fetch: async () => new Response(`invalid ${pluginKey}`) }), /kein gültiges JSON/);
 });
 
-test('Öffentlicher Plugin-Key im Rechtstext bricht den Abruf nicht ab', async () => {
-  const html = `<p>Plugin ${pluginKey}</p>`;
-  const result = await fetchDocuments(selected, credentials, noop, { fetch: async () => json({ html_de: html }) });
-  assert.equal(result.documents.imprint.de, html);
+test('Rechtstexte bleiben bei Übereinstimmungen mit Zugangsschlüsseln unverändert', async () => {
+  for (const key of [apiKey, pluginKey]) {
+    const html = `<p>${key}</p>`;
+    const result = await fetchDocuments(selected, credentials, noop, { fetch: async () => json({ html_de: html }) });
+    assert.equal(result.documents.imprint.de, html);
+  }
 });
 
-test('Warnungen sind lesbar und enthalten keine Zugangsschlüssel', async () => {
+test('Warnungen erscheinen als Klartext ohne Steuerzeichen', async () => {
   const warnings = [];
   const result = await fetchDocuments(selected, credentials, (message) => warnings.push(message), {
-    fetch: async () => json({ ...texts.imprint, warnings: `<p>Bitte &amp; prüfen: ${apiKey} ${pluginKey}</p>` }),
+    fetch: async () => json({ ...texts.imprint,
+      warnings: `<p>Bitte &amp; prüfen: ${apiKey}\u001b${pluginKey}\u007fEnde\u009f!</p><script>ignored</script>`,
+    }),
   });
   assert.equal(result.documents.imprint.de, texts.imprint.html_de);
-  assert.deepEqual(warnings, ['imprint: Bitte & prüfen: [entfernt] [entfernt]']);
+  assert.deepEqual(warnings, [`imprint: Bitte & prüfen: ${apiKey} ${pluginKey} Ende !`]);
 });
 
 test('Dauerhafte HTTP-Fehler und Redirects werden nicht wiederholt', async () => {
@@ -135,17 +138,20 @@ test('Vorübergehende Fehler: höchstens drei Versuche mit steigender Wartezeit'
   assert.equal(snapshot.documents.imprint.de, texts.imprint.html_de);
 });
 
-test('Retry-After akzeptiert Sekunden und HTTP-Datum und bricht bei mehr als 10 Sekunden ab', async () => {
-  const now = Date.parse('2026-01-01T00:00:00Z');
-  for (const [header, delay] of [['3', 3000], ['Thu, 01 Jan 2026 00:00:04 GMT', 4000], ['invalid', 1000]]) {
+test('Retry-After wertet nur Sekunden aus und bricht über 10 Sekunden sofort ab', async () => {
+  for (const [header, expected] of [
+    ['3', [3000, 3000]], ['10', [10_000, 10_000]], ['0', [1000, 2000]], ['-1', [1000, 2000]],
+    ['Thu, 01 Jan 2099 00:00:04 GMT', [1000, 2000]], ['invalid', [1000, 2000]],
+  ]) {
     let calls = 0;
     const delays = [];
     await fetchDocuments(selected, credentials, noop, {
-      fetch: async () => ++calls === 1
+      fetch: async () => ++calls < 3
         ? new Response('', { status: 429, headers: { 'Retry-After': header } }) : json(texts.imprint),
-      now: () => now, sleep: async (ms) => { delays.push(ms); },
+      sleep: async (ms) => { delays.push(ms); },
     });
-    assert.deepEqual(delays, [delay]);
+    assert.equal(calls, 3);
+    assert.deepEqual(delays, expected);
   }
   let calls = 0;
   await assert.rejects(fetchDocuments(selected, credentials, noop, {

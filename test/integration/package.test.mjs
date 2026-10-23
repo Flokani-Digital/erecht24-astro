@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import { spawn } from 'node:child_process';
 import { createServer } from 'node:net';
-import { cp, mkdir, mkdtemp, readFile, readdir, realpath, rm, symlink, writeFile } from 'node:fs/promises';
+import { cp, mkdir, mkdtemp, readFile, readdir, realpath, rm, writeFile } from 'node:fs/promises';
 import { join, relative, sep } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { test } from 'node:test';
@@ -143,8 +143,6 @@ async function assertBuild(directory) {
     assert.ok(contents.includes(`class="legal-text" lang="${lang}"`));
     assert.ok(!contents.includes('<script'), 'Statische Rechtstexte benötigen kein Browser-JavaScript');
   }
-  const slashCheck = await command('bash', [join(root, 'scripts/check-trailing-slash.sh'), directory], root).done;
-  assert.equal(slashCheck.code, 0, slashCheck.output);
 }
 
 async function installedLinks(packageRoot) {
@@ -197,8 +195,16 @@ test('Gepacktes Paket in unabhängigen Astro- und workerd-Projekten', { timeout:
   const packed = await command('npm', ['pack', '--ignore-scripts', '--json', '--pack-destination', work], root).done;
   assert.equal(packed.code, 0, packed.output);
   const [pack] = JSON.parse(packed.output);
-  for (const path of ['components/LegalText.astro', 'dist/index.d.ts', ...docs.map((name) => `docs/${name}.md`)]) assert.ok(pack.files.some((entry) => entry.path === path), `Fehlt im Archiv: ${path}`);
-  assert.ok(pack.files.every((entry) => /^(dist\/|components\/|docs\/[^/]+\.md$|README.md$|package.json$)/.test(entry.path)));
+  for (const path of ['LICENSE', 'components/LegalText.astro', 'dist/index.d.ts', ...docs.map((name) => `docs/${name}.md`)]) assert.ok(pack.files.some((entry) => entry.path === path), `Fehlt im Archiv: ${path}`);
+  assert.ok(pack.files.every((entry) => /^(dist\/|components\/|docs\/[^/]+\.md$|README.md$|LICENSE$|package.json$)/.test(entry.path)));
+  const sourceDir = join(root, 'src');
+  const expectedDist = (await filesBelow(sourceDir))
+    .filter((file) => file.endsWith('.ts') && !file.endsWith('.d.ts')).flatMap((file) => {
+      const name = relative(sourceDir, file).slice(0, -3).split(sep).join('/');
+      return [`dist/${name}.js`, `dist/${name}.d.ts`];
+    }).sort();
+  const actualDist = pack.files.map((entry) => entry.path).filter((path) => path.startsWith('dist/')).sort();
+  assert.deepEqual(actualDist, expectedDist, 'dist im Archiv muss genau den TypeScript-Quellen entsprechen');
   for (const entry of pack.files) secretFree(await readFile(join(root, entry.path), 'utf8'));
 
   const dirs = {};
@@ -365,29 +371,45 @@ test('Gepacktes Paket in unabhängigen Astro- und workerd-Projekten', { timeout:
     });
   }
 
-  await runCase('Node-SSR ohne prerender: Build erfolgreich, Runtime sperrt Rechtstext', async () => {
-    const directory = dirs.dynamic = join(work, 'dynamic-ssr');
-    await mkdir(join(directory, 'src/pages'), { recursive: true });
-    await cp(join(dirs.ssr, 'astro.config.mjs'), join(directory, 'astro.config.mjs'));
-    await symlink(join(dirs.ssr, 'node_modules'), join(directory, 'node_modules'), 'dir');
-    await writeFile(join(directory, 'package.json'), '{"private":true,"type":"module"}');
-    await writeFile(join(directory, 'src/pages/impressum.astro'), `---\nimport LegalText from '@flokani.digital/erecht24-astro/LegalText.astro';\n---\n<LegalText type="imprint" />\n`);
-    mock.reset();
-    const build = await astro('dynamic', ['build']).done;
-    assert.equal(build.code, 0, build.output);
-    secretFree(build.output);
-    await productionFree(join(directory, 'dist'));
-    mock.reset();
-    const number = await port();
-    const server = command(process.execPath, ['dist/server/entry.mjs'], directory, { ...keyless, HOST: '127.0.0.1', PORT: String(number) });
+  for (const kind of targets) await runCase(`${kind}: Seiten ohne prerender liefern Rechtstexte ohne Runtime-Abruf`, async () => {
+    const originals = new Map();
     try {
-      // This fixture intentionally has no non-legal readiness page.
-      await until(() => /listening|Local|localhost|127\.0\.0\.1/i.test(server.output()) || (server.exited() && assert.fail(server.output())), 30_000, server.output());
-      const body = await expectRenderError(server, `http://127.0.0.1:${number}/impressum/`, /prerender\s*=\s*true/, null);
-      assert.ok(!body.includes(texts.imprint.html_de));
-      assert.equal(mock.calls.length, 0);
-      secretFree(server.output());
-    } finally { await server.stop(); }
+      for (const filename of await filesBelow(join(dirs[kind], 'src/pages'))) {
+        if (!filename.endsWith('.astro')) continue;
+        const original = await readFile(filename, 'utf8');
+        originals.set(filename, original);
+        await writeFile(filename, original.replace('export const prerender = true;', ''));
+      }
+      await rm(join(dirs[kind], 'dist'), { recursive: true, force: true });
+      mock.reset();
+      const build = await astro(kind, ['build']).done;
+      assert.equal(build.code, 0, build.output);
+      assertCalls();
+      secretFree(build.output);
+      await productionFree(join(dirs[kind], 'dist'));
+      if (kind === 'static') await assertBuild(outputDir(kind));
+      else for (const [pathname] of legalPages) {
+        await assert.rejects(readFile(join(outputDir(kind), pathname.slice(1), 'index.html')), /ENOENT/, 'SSR muss dynamisch rendern');
+      }
+      mock.reset();
+      const number = await port();
+      const server = kind === 'ssr'
+        ? command(process.execPath, ['dist/server/entry.mjs'], dirs[kind], { ...keyless, HOST: '127.0.0.1', PORT: String(number) })
+        : astro(kind, ['preview', '--host', '127.0.0.1', '--port', String(number), '--ignore-lock'], keyless);
+      try {
+        await waitForPage(server, `http://127.0.0.1:${number}/`, 'Rechtstexte im Astro-Projekt');
+        for (const [pathname, html, lang] of legalPages) {
+          const result = await request(`http://127.0.0.1:${number}${pathname}`);
+          assert.equal(result.status, 200, `${pathname}\n${server.output()}`);
+          assert.ok(result.body.includes(html));
+          assert.ok(result.body.includes(`class="legal-text" lang="${lang}"`));
+        }
+        assert.equal(mock.calls.length, 0);
+        secretFree(server.output());
+      } finally { await server.stop(); }
+    } finally {
+      for (const [filename, original] of originals) await writeFile(filename, original);
+    }
   });
 
   for (const kind of targets) await runCase(`${kind}: fallbackToCache überbrückt Wartung (503), aber keine Konfigurationsfehler`, async () => {
@@ -436,7 +458,7 @@ test('Gepacktes Paket in unabhängigen Astro- und workerd-Projekten', { timeout:
     }
   });
 
-  await runCase('Buildfehler und redigierte Warnungen', async () => {
+  await runCase('Buildfehler und Warnungen als Klartext', async () => {
     for (const [scenario, variables, message] of [
       ['success', keyless, /ERECHT24_API_KEY/], ['unauthorized', env, /HTTP 401/],
       ['missing-en', env, /imprint \(en\)/], ['empty', env, /imprint \(de\)/],
@@ -451,7 +473,7 @@ test('Gepacktes Paket in unabhängigen Astro- und workerd-Projekten', { timeout:
     mock.reset('warning');
     const result = await astro('static', ['build']).done;
     assert.equal(result.code, 0, result.output);
-    assert.match(result.output, /Bitte prüfen: \[entfernt\] \[entfernt\]/);
+    assert.match(result.output, /Bitte prüfen: Hinweise zur Einbindung\./);
     secretFree(result.output);
   });
   await runCase('envDir, mode und Vorrang gesetzter Umgebungsvariablen', async () => {

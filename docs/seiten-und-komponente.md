@@ -26,11 +26,11 @@ export const prerender = true;
 
 Setze für Links auf diese Seiten einen abschließenden Slash und in der Astro-Konfiguration `trailingSlash: 'always'`.
 
-## `prerender` ist Pflicht
+## `prerender` wird empfohlen
 
-**In Projekten mit SSR-Adapter** braucht jede Rechtstextseite `export const prerender = true;`, sowohl mit Node als auch mit Cloudflare. Ohne diese Angabe kann ein SSR-Build erfolgreich abschließen; erst beim dynamischen Rendern in Produktion verweigert die Komponente die Ausgabe. Setze `prerender` deshalb auf jeder betroffenen Seite und baue und deploye das Projekt erneut.
+Für Rechtstextseiten empfehlen wir `export const prerender = true;`, damit Astro sie bereits beim Build als HTML erzeugt. Ohne diese Angabe rendert die Komponente die beim Build geladenen Texte auch dynamisch in Node- und Cloudflare-SSR-Seiten.
 
-Die Standardkonfiguration des Cloudflare-Adapters mit `workerd` wird unterstützt. Ein Override auf `prerenderEnvironment: 'node'` ist nicht erforderlich. Die Rechtstexte werden beim Build eingebettet; in Produktion findet kein API-Abruf statt. Das Paket fügt Seiten oder Layouts nicht von sich aus hinzu.
+Die Standardkonfiguration des Cloudflare-Adapters mit `workerd` wird unterstützt. Ein Override auf `prerenderEnvironment: 'node'` ist nicht erforderlich. Die Rechtstexte werden beim Build eingebettet; in Produktion findet kein API-Abruf statt und es werden keine Zugangsdaten benötigt. Das Paket fügt Seiten oder Layouts nicht von sich aus hinzu.
 
 ## Überschriften
 

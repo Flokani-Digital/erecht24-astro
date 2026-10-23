@@ -17,7 +17,6 @@ export class TransientApiError extends Error {}
 export interface ApiDependencies {
   fetch?: typeof globalThis.fetch;
   sleep?: (ms: number) => Promise<void>;
-  now?: () => number;
   timeoutMs?: number;
 }
 
@@ -52,23 +51,13 @@ export function plainText(html: string): string {
   return textOf(parseFragment(html)).replace(/[\s\u200b-\u200d\ufeff]+/gu, ' ').trim();
 }
 
-function redact(message: string, credentials: Credentials): string {
-  let safe = message;
-  for (const secret of [credentials.apiKey, credentials.pluginKey].sort((a, b) => b.length - a.length)) {
-    safe = safe.split(secret).join('[entfernt]');
-  }
-  return safe;
-}
-
-function retryDelay(response: Response, attempt: number, now: () => number): number {
+function retryDelay(response: Response, attempt: number): number {
   const backoff = 1000 * 2 ** attempt;
   const header = response.headers.get('retry-after');
   if (response.status !== 429 || !header) return backoff;
-  const seconds = Number(header);
-  const delay = Number.isFinite(seconds) && seconds >= 0
-    ? seconds * 1000 : Date.parse(header) - now();
-  if (!Number.isFinite(delay)) return backoff;
-  return Math.max(backoff, delay, 0);
+  const delay = Number(header) * 1000;
+  if (!Number.isFinite(delay) || delay < 0) return backoff;
+  return Math.max(backoff, delay);
 }
 
 async function readDocument(
@@ -76,7 +65,6 @@ async function readDocument(
 ): Promise<unknown> {
   const request = dependencies.fetch ?? globalThis.fetch;
   const sleep = dependencies.sleep ?? ((ms) => new Promise((resolve) => setTimeout(resolve, ms)));
-  const now = dependencies.now ?? Date.now;
   const timeoutMs = dependencies.timeoutMs ?? 10_000;
   for (let attempt = 0; attempt < 3; attempt++) {
     const signal = AbortSignal.timeout(timeoutMs);
@@ -102,7 +90,7 @@ async function readDocument(
       continue;
     }
     if (!response.ok) {
-      const delay = retryDelay(response, attempt, now);
+      const delay = retryDelay(response, attempt);
       if (retryStatuses.has(response.status) && attempt < 2 && delay <= 10_000) {
         await sleep(delay);
         continue;
@@ -143,18 +131,13 @@ export async function fetchDocuments(
       if (typeof html !== 'string' || !plainText(html)) {
         throw new Error(`[@flokani.digital/erecht24-astro] ${type} (${lang}): Rechtstext fehlt oder ist leer.`);
       }
-      // Do not silently alter legal content; reject a response reflecting the project key.
-      // The plugin key is public and therefore not checked.
-      if (html.includes(credentials.apiKey)) {
-        throw new Error(`[@flokani.digital/erecht24-astro] ${type}: Die API-Antwort enthält vertrauliche Zugangsdaten.`);
-      }
       translations[lang] = html;
     }
     if (record.warnings != null && typeof record.warnings !== 'string') {
       throw new Error(`[@flokani.digital/erecht24-astro] ${type}: Ungültiges warnings-Feld.`);
     }
     if (typeof record.warnings === 'string') {
-      const message = redact(plainText(record.warnings), credentials)
+      const message = plainText(record.warnings)
         .replace(/[\u0000-\u001f\u007f-\u009f]/gu, ' ');
       if (message) warn(`${type}: ${message}`);
     }

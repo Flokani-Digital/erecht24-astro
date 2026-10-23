@@ -18,18 +18,17 @@ Alle Meldungen beginnen mit `[@flokani.digital/erecht24-astro]`.
 | `<typ>: Abruf fehlgeschlagen (HTTP 404)` | Das Dokument ist im eRecht24-Projekt nicht angelegt, häufig `privacyPolicySocialMedia` | Dokument in eRecht24 anlegen oder aus `documents` entfernen |
 | `<typ> (en): Rechtstext fehlt oder ist leer.` | Die Sprache ist im Projekt nicht gepflegt | Text in eRecht24 ergänzen oder `languages` anpassen |
 | `<typ>: Netzwerkfehler oder Timeout nach 3 Versuchen.` | Keine Verbindung oder API zu langsam | Netzwerk des Build-Servers prüfen, Build erneut starten |
-| `Abruf fehlgeschlagen (HTTP 429/5xx)` | API überlastet oder Rate-Limit | Später erneut bauen. Verlangt `Retry-After` mehr als 10 s, bricht der Build ab |
+| `Abruf fehlgeschlagen (HTTP 429/5xx)` | API überlastet oder Rate-Limit | Später erneut bauen. Verlangt `Retry-After` bei HTTP 429 mehr als 10 s, endet der Abruf sofort mit einem Fehler, ohne Wartezeit oder weiteren Versuch |
 | `eRecht24 nicht erreichbar, Rechtstexte vom <Datum> aus dem Cache verwendet.` (Warnung) | `fallbackToCache` hat einen Ausfall überbrückt | Build läuft weiter; prüfen, ob eRecht24 wieder erreichbar ist und neu bauen |
 | `Kein nutzbarer Cache: …` | Ausfall bei aktivem `fallbackToCache`, aber kein oder abgelaufener Stand, beschädigte Datei oder abweichende Auswahl | Später neu bauen. Cache-Verzeichnis in CI erhalten, `maxAgeDays` prüfen |
 | `<typ>: Die API-Antwort enthält kein gültiges JSON.` / `Unerwartete Antwortstruktur.` | Ungültige Antwort, etwa durch einen Proxy | Netzwerkpfad prüfen, Fehler an eRecht24 melden |
-| `<typ>: Die API-Antwort enthält vertrauliche Zugangsdaten.` | Der Rechtstext enthält den Projekt-API-Key | Text in eRecht24 prüfen; Key gegebenenfalls neu erzeugen |
 
 ## Konfiguration
 
 | Meldung | Ursache | Lösung |
 |---|---|---|
 | `Die Konfiguration muss ein Objekt sein.` | Falscher Aufruf von `rechtstexte(...)` | Objekt übergeben oder leer aufrufen |
-| `Unbekannte Option. Erlaubt sind documents und languages.` | Tippfehler oder nicht unterstützte Option | Nur `documents` und `languages` verwenden |
+| `Unbekannte Option. Erlaubt sind documents, languages und fallbackToCache.` | Tippfehler oder nicht unterstützte Option | Nur `documents`, `languages` und `fallbackToCache` verwenden |
 | `documents muss bekannte Dokumenttypen enthalten.` | Leere Liste oder unbekannter Wert | `imprint`, `privacyPolicy`, `privacyPolicySocialMedia` |
 | `languages muss de und/oder en enthalten.` | Leere Liste oder unbekannter Wert | `de` und/oder `en` |
 
@@ -39,7 +38,6 @@ Alle Meldungen beginnen mit `[@flokani.digital/erecht24-astro]`.
 |---|---|---|
 | `Der Dokumenttyp "…" wurde nicht in documents konfiguriert.` | Komponente nutzt einen Typ, der nicht geladen wird | Typ in `documents` aufnehmen |
 | `Die Sprache "…" wurde für … nicht in languages konfiguriert oder der Text fehlt.` | `lang` passt nicht zu `languages` | `languages` ergänzen oder `lang` korrigieren |
-| `Rechtstextseiten benötigen export const prerender = true.` | Rechtstextseite wird in Produktion dynamisch gerendert (SSR); der Build kann zuvor erfolgreich gewesen sein | `export const prerender = true;` in jede Rechtstextseite setzen, danach neu bauen und deployen |
 | `Inhalte sind vor dem Rendern noch nicht geladen.` | Seite wird außerhalb von `build` oder `dev` gerendert | Über `astro build` oder `astro dev` starten |
 | `Rechtstexte dürfen nur im Astro-Frontmatter importiert werden.` | Import in Client-Code | Nur in `.astro`-Frontmatter oder serverseitig verwenden |
 
