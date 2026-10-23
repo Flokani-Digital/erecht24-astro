@@ -199,6 +199,14 @@ test('Gepacktes Paket in unabhängigen Astro- und workerd-Projekten', { timeout:
   const [pack] = JSON.parse(packed.output);
   for (const path of ['components/LegalText.astro', 'dist/index.d.ts', ...docs.map((name) => `docs/${name}.md`)]) assert.ok(pack.files.some((entry) => entry.path === path), `Fehlt im Archiv: ${path}`);
   assert.ok(pack.files.every((entry) => /^(dist\/|components\/|docs\/[^/]+\.md$|README.md$|package.json$)/.test(entry.path)));
+  const sourceDir = join(root, 'src');
+  const expectedDist = (await filesBelow(sourceDir))
+    .filter((file) => file.endsWith('.ts') && !file.endsWith('.d.ts')).flatMap((file) => {
+      const name = relative(sourceDir, file).slice(0, -3).split(sep).join('/');
+      return [`dist/${name}.js`, `dist/${name}.d.ts`];
+    }).sort();
+  const actualDist = pack.files.map((entry) => entry.path).filter((path) => path.startsWith('dist/')).sort();
+  assert.deepEqual(actualDist, expectedDist, 'dist im Archiv muss genau den TypeScript-Quellen entsprechen');
   for (const entry of pack.files) secretFree(await readFile(join(root, entry.path), 'utf8'));
 
   const dirs = {};

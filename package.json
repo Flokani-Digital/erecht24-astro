@@ -16,7 +16,7 @@
   "repository": { "type": "git", "url": "git+https://github.com/Flokani-Digital/erecht24-astro.git" },
   "homepage": "https://github.com/Flokani-Digital/erecht24-astro#readme",
   "scripts": {
-    "build": "tsc -p tsconfig.json",
+    "build": "node -e \"require('node:fs').rmSync('dist', { recursive: true, force: true })\" && tsc -p tsconfig.json",
     "check": "tsc -p tsconfig.json --noEmit",
     "test": "npm run build && node --test test/*.test.mjs",
     "test:integration": "npm run build && node --test test/integration/*.test.mjs",
