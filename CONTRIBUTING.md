@@ -6,7 +6,7 @@ Hinweise für alle, die am Paket `@flokani.digital/erecht24-astro` arbeiten. Die
 
 ## Lokal entwickeln
 
-Wir verwenden **Node.js 24 LTS**, im Projekt festgelegt auf **24.21.0**. `fnm` liest diese Version aus `.node-version`. Die globale Standardversion muss dafür nicht geändert werden.
+Wir verwenden **Node.js 24 LTS**, im Projekt festgelegt auf **24.22.1**. `fnm` liest diese Version aus `.node-version`. Die globale Standardversion muss dafür nicht geändert werden.
 
 ```sh
 fnm install
