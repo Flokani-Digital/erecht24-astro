@@ -29,7 +29,7 @@ Die Demo ist unter `http://127.0.0.1:4337/` erreichbar. Sie verwendet ausschlie�
 | `npm run dev` | Statische Demo mit simuliertem eRecht24-Server starten |
 | `npm pack` | Lokales NPM-Archiv erstellen; veröffentlicht nichts |
 
-Die Integrationstests verwenden drei getrennte Projekte unter `.test-work/`: statische Ausgabe, Node-SSR und Cloudflare mit dem standardmäßigen `workerd`-Prerendering. Sie installieren das tatsächliche Paketarchiv und starten lokale HTTP-Server. Vorher `npm ci` ausführen. Echte eRecht24-Aufrufe sind im Testprozess gesperrt. Prozesse und Server werden auch bei Fehlern beendet. Erfolgreiche Testprojekte werden gelöscht; bei Fehlern bleiben die Artefakte unter `.test-work/` für die Diagnose erhalten.
+Die Integrationstests verwenden drei getrennte Projekte unter `.test-work/`: statische Ausgabe, Node-SSR und Cloudflare mit dem standardmäßigen `workerd`-Prerendering. Sie installieren das tatsächliche Paketarchiv und starten lokale HTTP-Server. Vorher `npm ci` ausführen. NPM verwendet seinen lokalen Cache bevorzugt und darf fehlende Registry-Metadaten oder Pakete nachladen; ein vollständig vorgefüllter Cache ist nicht erforderlich. Echte eRecht24-Aufrufe sind im Testprozess gesperrt. Prozesse und Server werden auch bei Fehlern beendet. Erfolgreiche Testprojekte werden gelöscht; bei Fehlern bleiben die Artefakte unter `.test-work/` für die Diagnose erhalten.
 
 ## Schlüssel
 
@@ -37,7 +37,11 @@ Der Developer-Key (Plugin-Key) steht in `src/plugin-key.ts` und ist im veröffen
 
 ## Kompatibilität und Prüfung
 
-Zielbereich: Astro 7.x, Node `^22.12.0 || ^24.0.0`. Die Entwicklungsabhängigkeiten verwenden Astro 7.3.5, `@astrojs/node` 11.1.6, `@astrojs/cloudflare` 14.3.4 und Wrangler 4.125.0.
+Zielbereich: Astro `^7.4.2`, Vite `^8.3.5` und Node `^22.23.4 || ^24.0.0`. Die Entwicklungsabhängigkeiten verwenden Astro 7.4.2, Vite 8.3.5, `@astrojs/node` 11.1.9, `@astrojs/cloudflare` 14.4.2, Wrangler 4.153.0 und `@astrojs/check` 0.9.12.
+
+TypeScript bleibt auf der aktuellen kompatiblen 6.x-Linie (6.0.3). `@astrojs/check` 0.9.12 unterstützt laut Peer-Abhängigkeit nur TypeScript 5 und 6; ein Wechsel auf TypeScript 7 setzt dessen Unterstützung voraus. Die Node-Typen bleiben auf der Node-24-Linie. Die CI prüft den gleichen Paketstand unter Node 22.23.4 und 24.22.1.
+
+Ein npm-Override hebt indirekte `undici`-7.x-Abhängigkeiten auf mindestens 7.30.1 an. Der aktuelle Cloudflare-Stack zieht über Miniflare noch 7.29.1 mit, das unter anderem von [GHSA-xjj6-f33q-929c](https://github.com/nodejs/undici/security/advisories/GHSA-xjj6-f33q-929c) betroffen ist. Die unabhängigen Testprojekte übernehmen denselben Override. Sobald Cloudflare durchgängig korrigierte Versionen verwendet, kann er nach erneuter Audit- und Integrationsprüfung entfernt werden.
 
 Die automatisierten Tests decken insbesondere Folgendes ab:
 
@@ -54,15 +58,15 @@ Die automatisierten Tests decken insbesondere Folgendes ab:
 Zum Test einer anderen Astro-Version können ausschließlich für den Testlauf Versionen vorgegeben werden. Dabei darf NPM fehlende Pakete aus der Registry nachladen:
 
 ```sh
-RECHTSTEXTE_TEST_ASTRO_VERSION=7.0.0 \
-RECHTSTEXTE_TEST_ADAPTER_VERSION=11.0.0 \
-RECHTSTEXTE_TEST_CLOUDFLARE_VERSION=14.0.0 \
-RECHTSTEXTE_TEST_WRANGLER_VERSION=4.83.0 \
-RECHTSTEXTE_TEST_VITE_VERSION=8.0.13 \
-fnm exec --using 22.12.0 npm run test:integration
+RECHTSTEXTE_TEST_ASTRO_VERSION=7.4.2 \
+RECHTSTEXTE_TEST_ADAPTER_VERSION=11.1.9 \
+RECHTSTEXTE_TEST_CLOUDFLARE_VERSION=14.4.2 \
+RECHTSTEXTE_TEST_WRANGLER_VERSION=4.153.0 \
+RECHTSTEXTE_TEST_VITE_VERSION=8.3.5 \
+fnm exec --using 22.23.4 npm run test:integration
 ```
 
-Ohne diese Variablen verwenden die Testprojekte die im Root-Projekt installierten Versionen. Die Overrides gelten nur für die Testprojekte und ändern die Paketabhängigkeiten nicht. Die Mindestversionsprüfung verwendet Node 22.12.0 und die oben angegebenen Astro-, Adapter-, Wrangler- und Vite-Versionen.
+Ohne diese Variablen verwenden die Testprojekte die im Root-Projekt installierten Versionen und übernehmen dessen Lockfile. Die Overrides gelten nur für die Testprojekte und ändern die Paketabhängigkeiten nicht. Die Mindestversionsprüfung verwendet Node 22.23.4 und die oben angegebenen Astro-, Adapter-, Wrangler- und Vite-Versionen.
 
 Alle API- und Adapterprüfungen verwenden künstliche Rechtstexte und lokale Server.
 

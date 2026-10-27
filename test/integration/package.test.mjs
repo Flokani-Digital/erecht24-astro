@@ -200,6 +200,7 @@ test('Gepacktes Paket in unabhängigen Astro- und workerd-Projekten', { timeout:
   for (const entry of pack.files) secretFree(await readFile(join(root, entry.path), 'utf8'));
 
   const dirs = {};
+  const rootPackage = JSON.parse(await readFile(join(root, 'package.json'), 'utf8'));
   const overrides = {
     astro: 'RECHTSTEXTE_TEST_ASTRO_VERSION', '@astrojs/node': 'RECHTSTEXTE_TEST_ADAPTER_VERSION',
     '@astrojs/cloudflare': 'RECHTSTEXTE_TEST_CLOUDFLARE_VERSION', wrangler: 'RECHTSTEXTE_TEST_WRANGLER_VERSION', vite: 'RECHTSTEXTE_TEST_VITE_VERSION',
@@ -218,19 +219,22 @@ test('Gepacktes Paket in unabhängigen Astro- und workerd-Projekten', { timeout:
     const dependencies = { '@flokani.digital/erecht24-astro': `file:${join(work, pack.filename)}` };
     const names = ['astro', '@astrojs/check', 'typescript', 'vite', ...(kind === 'ssr' ? ['@astrojs/node'] : kind === 'cloudflare' ? ['@astrojs/cloudflare', 'wrangler'] : [])];
     for (const name of names) dependencies[name] = process.env[overrides[name]] || JSON.parse(await readFile(join(root, 'node_modules', name, 'package.json'), 'utf8')).version;
-    const project = { name: `erecht24-test-${kind}`, private: true, type: 'module', dependencies };
+    const project = {
+      name: `erecht24-test-${kind}`, private: true, type: 'module', dependencies,
+      overrides: rootPackage.overrides,
+    };
     await writeFile(join(directory, 'package.json'), JSON.stringify(project));
     if (!hasOverrides) {
-      // Preserve the root's installed transitive versions instead of resolving
-      // newer versions from cached registry metadata that have no cached tarball.
+      // Reuse the root's locked transitive versions for the default test run.
       const lock = JSON.parse(await readFile(join(root, 'package-lock.json'), 'utf8'));
       lock.name = project.name;
       delete lock.version;
       lock.packages[''] = { name: project.name, dependencies };
       await writeFile(join(directory, 'package-lock.json'), JSON.stringify(lock));
     }
-    const cacheMode = hasOverrides ? '--prefer-offline' : '--offline';
-    const installed = await command('npm', ['install', cacheMode, '--ignore-scripts', '--no-audit', '--no-fund'], directory).done;
+    // npm ci caches tarballs, but does not guarantee cached registry metadata.
+    // Allow missing metadata/packages to be fetched even without version overrides.
+    const installed = await command('npm', ['install', '--prefer-offline', '--ignore-scripts', '--no-audit', '--no-fund'], directory).done;
     assert.equal(installed.code, 0, installed.output);
     await installedLinks(join(directory, 'node_modules/@flokani.digital/erecht24-astro'));
   }

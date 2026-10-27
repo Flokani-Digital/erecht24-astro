@@ -2,6 +2,10 @@
 
 ## 0.1.0 (unveröffentlicht)
 
+- Abhängigkeiten aktualisiert: Astro 7.4.2, Vite 8.3.5, Node-Adapter 11.1.9, Cloudflare-Adapter 14.4.2, Wrangler 4.153.0 und Astro Check 0.9.12; TypeScript bleibt wegen Astro Check auf der kompatiblen Version 6.0.3.
+- Mindestanforderungen auf Astro 7.4.2, Vite 8.3.5 und Node 22.23.4 angehoben; lokale Entwicklung weiterhin mit Node 24.22.1 LTS. CI für Node 22 und 24 sowie aktualisierte GitHub Actions.
+- Integrationstests dürfen fehlende npm-Metadaten und Pakete nachladen, auch ohne Versions-Overrides.
+- Indirekte Abhängigkeiten aktualisiert; ein auf `undici` 7.x begrenzter npm-Override stellt die korrigierte Version ab 7.30.1 auch im Cloudflare-Teststack sicher.
 - Astro-Integration: eRecht24-Rechtstexte (Impressum, Datenschutzerklärung, Social-Media-Datenschutz) beim Build abrufen.
 - Komponente `LegalText.astro` mit `type`, `lang` und `class`.
 - Deutsch und Englisch aus demselben Abruf, Timeout, Wiederholungen und Warnungsausgabe.

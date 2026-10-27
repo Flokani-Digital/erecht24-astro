@@ -8,8 +8,8 @@
 
 ## Voraussetzungen
 
-- Astro `7.x` (Peer-Abhängigkeit: `astro ^7.0.0`, `vite ^8.0.13`)
-- Node.js `^22.12.0 || ^24.0.0`
+- Astro ab `7.4.2` innerhalb von `7.x` (Peer-Abhängigkeit: `astro ^7.4.2`, `vite ^8.3.5`)
+- Node.js `^22.23.4 || ^24.0.0`
 - Ein eRecht24-Projekt mit angelegten Rechtstexten und dessen **Projekt-API-Key** (im eRecht24-Projekt-Manager erzeugen)
 
 ## Installation

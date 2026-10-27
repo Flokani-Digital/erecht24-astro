@@ -60,6 +60,6 @@ body:
     id: versionen
     attributes:
       label: Versionen
-      placeholder: Plugin 0.1.0, Astro 7.3.5, Node 24.22.1, Adapter …
+      placeholder: Plugin 0.1.0, Astro 7.4.2, Node 24.22.1, Adapter …
     validations:
       required: true
