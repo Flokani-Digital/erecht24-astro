@@ -10,12 +10,21 @@ permissions:
 
 jobs:
   test:
-    name: Node ${{ matrix.node }}
+    name: Node ${{ matrix.node }}, Astro ${{ matrix.astro }}
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
       matrix:
         node: ['22.23.4', '24.22.1']
+        astro: ['7']
+        include:
+          - node: '24.22.1'
+            astro: '6'
+            versions:
+              RECHTSTEXTE_TEST_ASTRO_VERSION: '6.4.8'
+              RECHTSTEXTE_TEST_VITE_VERSION: '7.3.7'
+              RECHTSTEXTE_TEST_ADAPTER_VERSION: '10.1.4'
+              RECHTSTEXTE_TEST_CLOUDFLARE_VERSION: '13.7.0'
     steps:
       - uses: actions/checkout@v7.0.1
       - uses: actions/setup-node@v7.1.0
@@ -26,3 +35,8 @@ jobs:
       - run: npm run check
       - run: npm test
       - run: npm run test:integration
+        env:
+          RECHTSTEXTE_TEST_ASTRO_VERSION: ${{ matrix.versions.RECHTSTEXTE_TEST_ASTRO_VERSION }}
+          RECHTSTEXTE_TEST_VITE_VERSION: ${{ matrix.versions.RECHTSTEXTE_TEST_VITE_VERSION }}
+          RECHTSTEXTE_TEST_ADAPTER_VERSION: ${{ matrix.versions.RECHTSTEXTE_TEST_ADAPTER_VERSION }}
+          RECHTSTEXTE_TEST_CLOUDFLARE_VERSION: ${{ matrix.versions.RECHTSTEXTE_TEST_CLOUDFLARE_VERSION }}
