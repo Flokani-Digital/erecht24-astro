@@ -237,6 +237,14 @@ test('Gepacktes Paket in unabhängigen Astro- und workerd-Projekten', { timeout:
     const installed = await command('npm', ['install', '--prefer-offline', '--ignore-scripts', '--no-audit', '--no-fund'], directory).done;
     assert.equal(installed.code, 0, installed.output);
     await installedLinks(join(directory, 'node_modules/@flokani.digital/erecht24-astro'));
+    // Make the tested stack visible and fail if an override was not honoured.
+    const resolved = {};
+    for (const name of names) resolved[name] = JSON.parse(await readFile(join(directory, 'node_modules', name, 'package.json'), 'utf8')).version;
+    for (const name of names) {
+      const wanted = process.env[overrides[name]];
+      if (wanted) assert.equal(resolved[name], wanted, `${name} ${resolved[name]} statt ${wanted} installiert`);
+    }
+    console.log(`Getestet (${kind}): ${Object.entries(resolved).map(([name, version]) => `${name}@${version}`).join(', ')}`);
   }
   function astro(kind, args, variables = env) {
     return command(process.execPath, ['--import', preload, join(dirs[kind], 'node_modules/astro/bin/astro.mjs'), ...args], dirs[kind], variables);

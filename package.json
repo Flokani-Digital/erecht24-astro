@@ -24,7 +24,7 @@
     "dev": "npm run build && node scripts/demo.mjs",
     "prepack": "npm run build"
   },
-  "peerDependencies": { "astro": "^7.4.2", "vite": "^8.3.5" },
+  "peerDependencies": { "astro": "^6.0.0 || ^7.4.2", "vite": "^7.3.1 || ^8.3.5" },
   "dependencies": { "parse5": "^8.0.1" },
   "overrides": { "undici@^7.0.0": "^7.30.1" },
   "devDependencies": {
