@@ -37,9 +37,16 @@ Der Developer-Key (Plugin-Key) steht in `src/plugin-key.ts` und ist im veröffen
 
 ## Kompatibilität und Prüfung
 
-Zielbereich: Astro `^7.4.2`, Vite `^8.3.5` und Node `^22.23.4 || ^24.0.0`. Die Entwicklungsabhängigkeiten verwenden Astro 7.4.2, Vite 8.3.5, `@astrojs/node` 11.1.9, `@astrojs/cloudflare` 14.4.2, Wrangler 4.153.0 und `@astrojs/check` 0.9.12.
+Zielbereich: Astro `^6.0.0 || ^7.4.2`, Vite `^7.3.1 || ^8.3.5` und Node `^22.23.4 || ^24.0.0`. Die Entwicklungsabhängigkeiten (und damit `npm test` lokal) verwenden Astro 7.4.2, Vite 8.3.5, `@astrojs/node` 11.1.9, `@astrojs/cloudflare` 14.4.2, Wrangler 4.153.0 und `@astrojs/check` 0.9.12.
 
-TypeScript bleibt auf der aktuellen kompatiblen 6.x-Linie (6.0.3). `@astrojs/check` 0.9.12 unterstützt laut Peer-Abhängigkeit nur TypeScript 5 und 6; ein Wechsel auf TypeScript 7 setzt dessen Unterstützung voraus. Die Node-Typen bleiben auf der Node-24-Linie. Die CI prüft den gleichen Paketstand unter Node 22.23.4 und 24.22.1.
+TypeScript bleibt auf der aktuellen kompatiblen 6.x-Linie (6.0.3). `@astrojs/check` 0.9.12 unterstützt laut Peer-Abhängigkeit nur TypeScript 5 und 6; ein Wechsel auf TypeScript 7 setzt dessen Unterstützung voraus. Die Node-Typen bleiben auf der Node-24-Linie. Die CI prüft Node 22.23.4 und 24.22.1 jeweils mit Astro 7 (Lockfile-Stand) sowie mit Astro 6.0.0 und 6.4.8 über die Versionsvorgaben unten:
+
+| Astro | Vite | `@astrojs/node` | `@astrojs/cloudflare` |
+| --- | --- | --- | --- |
+| 6.0.0 | 7.3.1 | 10.0.0 | 13.0.0 |
+| 6.4.8 | 7.3.7 | 10.1.4 | 13.7.0 |
+
+Die Adapter sind für Nutzer optional und nur Teil des Teststacks. Die Versionen stehen in `.github/workflows/ci.yml`; bei neuen Astro-6-Versionen dort und hier anpassen.
 
 Ein npm-Override hebt indirekte `undici`-7.x-Abhängigkeiten auf mindestens 7.30.1 an. Der aktuelle Cloudflare-Stack zieht über Miniflare noch 7.29.1 mit, das unter anderem von [GHSA-xjj6-f33q-929c](https://github.com/nodejs/undici/security/advisories/GHSA-xjj6-f33q-929c) betroffen ist. Die unabhängigen Testprojekte übernehmen denselben Override. Sobald Cloudflare durchgängig korrigierte Versionen verwendet, kann er nach erneuter Audit- und Integrationsprüfung entfernt werden.
 
@@ -55,7 +62,7 @@ Die automatisierten Tests decken insbesondere Folgendes ab:
 - Keine künstlichen Zugangsschlüssel in Paketdateien, Logs und vollständigen Build-Verzeichnissen, einschließlich SSR-Dateien.
 - Paketarchiv ohne `docs/`: Die Dokumentation liegt nur auf GitHub, deshalb verwendet die README ausschließlich absolute Links.
 
-Zum Test einer anderen Astro-Version können ausschließlich für den Testlauf Versionen vorgegeben werden. Dabei darf NPM fehlende Pakete aus der Registry nachladen:
+Zum Test einer anderen Astro-Version (zum Beispiel Astro 6) können ausschließlich für den Testlauf Versionen vorgegeben werden. Dabei darf NPM fehlende Pakete aus der Registry nachladen:
 
 ```sh
 RECHTSTEXTE_TEST_ASTRO_VERSION=7.4.2 \
@@ -65,6 +72,18 @@ RECHTSTEXTE_TEST_WRANGLER_VERSION=4.153.0 \
 RECHTSTEXTE_TEST_VITE_VERSION=8.3.5 \
 fnm exec --using 22.23.4 npm run test:integration
 ```
+
+Beispiel für Astro 6.0.0 (die Peer-Untergrenze):
+
+```sh
+RECHTSTEXTE_TEST_ASTRO_VERSION=6.0.0 \
+RECHTSTEXTE_TEST_VITE_VERSION=7.3.1 \
+RECHTSTEXTE_TEST_ADAPTER_VERSION=10.0.0 \
+RECHTSTEXTE_TEST_CLOUDFLARE_VERSION=13.0.0 \
+npm run test:integration
+```
+
+Vite muss zur Astro-Version passen (Astro 6: Vite 7, Astro 7: Vite 8), sonst scheitert die Installation an den Peer-Abhängigkeiten.
 
 Ohne diese Variablen verwenden die Testprojekte die im Root-Projekt installierten Versionen und übernehmen dessen Lockfile. Die Overrides gelten nur für die Testprojekte und ändern die Paketabhängigkeiten nicht. Die Mindestversionsprüfung verwendet Node 22.23.4 und die oben angegebenen Astro-, Adapter-, Wrangler- und Vite-Versionen.
 

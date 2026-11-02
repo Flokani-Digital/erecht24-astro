@@ -8,7 +8,7 @@
 
 ## Voraussetzungen
 
-- Astro ab `7.4.2` innerhalb von `7.x` (Peer-Abhängigkeit: `astro ^7.4.2`, `vite ^8.3.5`)
+- Astro `6.0.0` oder neuer innerhalb von `6.x`, oder Astro ab `7.4.2` innerhalb von `7.x` (Peer-Abhängigkeiten: `astro ^6.0.0 || ^7.4.2`, `vite ^7.3.1 || ^8.3.5`). Astro 6 bringt Vite 7 mit, Astro 7 Vite 8.
 - Node.js `^22.23.4 || ^24.0.0`
 - Ein eRecht24-Projekt mit angelegten Rechtstexten und dessen **Projekt-API-Key** (im eRecht24-Projekt-Manager erzeugen)
 
