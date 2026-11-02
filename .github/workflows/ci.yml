@@ -16,7 +16,11 @@ jobs:
       fail-fast: false
       matrix:
         node: ['22.23.4', '24.22.1']
-        astro: ['6', '7']
+        astro: ['6.0.0', '6.4.8', '7']
+        exclude:
+          # Untergrenze von Astro 6 nur mit der aktuellen Node-Version.
+          - node: '22.23.4'
+            astro: '6.0.0'
     steps:
       - uses: actions/checkout@v7.0.1
       - uses: actions/setup-node@v7.1.0
@@ -29,7 +33,7 @@ jobs:
       - run: npm run test:integration
         env:
           # Astro 7 nutzt die Versionen aus package-lock.json; Astro 6 wird per Überschreibung getestet.
-          RECHTSTEXTE_TEST_ASTRO_VERSION: ${{ matrix.astro == '6' && '6.4.8' || '' }}
-          RECHTSTEXTE_TEST_VITE_VERSION: ${{ matrix.astro == '6' && '7.3.7' || '' }}
-          RECHTSTEXTE_TEST_ADAPTER_VERSION: ${{ matrix.astro == '6' && '10.1.4' || '' }}
-          RECHTSTEXTE_TEST_CLOUDFLARE_VERSION: ${{ matrix.astro == '6' && '13.7.0' || '' }}
+          RECHTSTEXTE_TEST_ASTRO_VERSION: ${{ matrix.astro != '7' && matrix.astro || '' }}
+          RECHTSTEXTE_TEST_VITE_VERSION: ${{ matrix.astro == '6.0.0' && '7.3.1' || matrix.astro == '6.4.8' && '7.3.7' || '' }}
+          RECHTSTEXTE_TEST_ADAPTER_VERSION: ${{ matrix.astro == '6.0.0' && '10.0.0' || matrix.astro == '6.4.8' && '10.1.4' || '' }}
+          RECHTSTEXTE_TEST_CLOUDFLARE_VERSION: ${{ matrix.astro == '6.0.0' && '13.0.0' || matrix.astro == '6.4.8' && '13.7.0' || '' }}
