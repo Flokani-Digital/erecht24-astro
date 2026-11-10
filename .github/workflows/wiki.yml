@@ -1,0 +1,62 @@
+name: Wiki
+
+# Spiegelt docs/ ins GitHub Wiki. Quelle bleibt docs/ im Repository;
+# direkte Änderungen im Wiki werden beim nächsten Lauf überschrieben.
+# Voraussetzung: Im Wiki wurde einmalig die erste Seite angelegt, sonst fehlt das Wiki-Repository.
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'docs/**'
+      - 'README.md'
+      - 'scripts/build-wiki.mjs'
+      - '.github/workflows/wiki.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: wiki-sync
+  cancel-in-progress: false
+
+jobs:
+  sync:
+    name: Wiki aktualisieren
+    runs-on: ubuntu-latest
+    steps:
+      - name: Auslöser prüfen (nur main)
+        run: |
+          if [ "${GITHUB_REF}" != "refs/heads/main" ]; then
+            echo "Wiki-Sync nur von main erlaubt, nicht von ${GITHUB_REF}" >&2
+            exit 1
+          fi
+      - uses: actions/checkout@v7.0.1
+      - uses: actions/setup-node@v7.1.0
+        with:
+          node-version: '24.22.1'
+      - name: Wiki-Repository klonen
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          git -c "http.extraheader=Authorization: Basic $(printf 'x-access-token:%s' "$GH_TOKEN" | base64 -w0)" \
+            clone "https://github.com/${GITHUB_REPOSITORY}.wiki.git" "$RUNNER_TEMP/wiki"
+      - name: Seiten erzeugen
+        run: |
+          find "$RUNNER_TEMP/wiki" -maxdepth 1 -name '*.md' -delete
+          node scripts/build-wiki.mjs "$RUNNER_TEMP/wiki"
+      - name: Änderungen veröffentlichen
+        env:
+          GH_TOKEN: ${{ github.token }}
+        working-directory: ${{ runner.temp }}/wiki
+        run: |
+          git add -A
+          if git diff --cached --quiet; then
+            echo "Keine Änderungen im Wiki."
+            exit 0
+          fi
+          git -c user.name='github-actions[bot]' -c user.email='41898282+github-actions[bot]@users.noreply.github.com' \
+            commit -m "📝 Wiki aus docs/ aktualisiert (${GITHUB_SHA::7})"
+          git -c "http.extraheader=Authorization: Basic $(printf 'x-access-token:%s' "$GH_TOKEN" | base64 -w0)" \
+            push origin HEAD
