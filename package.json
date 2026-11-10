@@ -1,6 +1,6 @@
 {
   "name": "@flokani.digital/erecht24-astro",
-  "version": "0.1.0-rc.0",
+  "version": "0.1.0",
   "description": "Astro Rechtstexte für eRecht24: Rechtstexte beim Build abrufen und statisch ausgeben.",
   "author": "Flokani GmbH",
   "type": "module",
