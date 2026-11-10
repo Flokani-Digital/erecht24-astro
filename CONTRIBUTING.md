@@ -97,7 +97,7 @@ Eine veröffentlichte Version lässt sich auf npm nie wieder neu hochladen, auch
 
 1. CI auf `main` ist grün.
 2. Repository auf GitHub öffentlich stellen. Die README verlinkt Doku und Lizenz absolut auf GitHub; bei privatem Repository führen diese Links auf npmjs.com ins Leere.
-3. In `package.json` `"private": true` entfernen (nur beim ersten Release) und die Version setzen. Im `CHANGELOG.md` „unveröffentlicht“ durch das Datum ersetzen.
+3. Version in `package.json` setzen (`"private"` ist für 0.1.0 bereits entfernt). Vor der finalen Version im `CHANGELOG.md` „unveröffentlicht“ durch das Datum ersetzen.
 4. `npm publish --dry-run` prüfen: nur `dist/`, `components/`, README, LICENSE und `package.json`.
 5. Vorabversion veröffentlichen, zum Beispiel `0.1.0-rc.0`: `npm publish --access public --tag next`.
 6. In einem Kundenprojekt `npm i @flokani.digital/erecht24-astro@next` installieren, `astro build` und die Rechtstextseiten im Browser prüfen.
