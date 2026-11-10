@@ -2,8 +2,6 @@
 
 `@flokani.digital/erecht24-astro` ist eine Astro-Integration, die Impressum, Datenschutzerklärung und optional die Datenschutzerklärung für Social Media aus deinem [eRecht24](https://www.e-recht24.de/)-Projekt beim Build abruft und als HTML ausgibt. Im Browser deiner Besucher findet kein API-Aufruf statt.
 
-> **Status:** Das Paket ist noch nicht veröffentlicht (`private`). Bis zur Veröffentlichung kann es als lokales Archiv installiert werden, siehe [Installation](#installation).
->
 > Kein offizielles Produkt von eRecht24. Die Rechtstexte stammen unverändert von eRecht24; für ihre Vollständigkeit, Aktualität und korrekte Einbindung bleibt der Betreiber der Website verantwortlich.
 
 ## Voraussetzungen
@@ -14,16 +12,8 @@
 
 ## Installation
 
-Nach der Veröffentlichung:
-
 ```sh
 npm install @flokani.digital/erecht24-astro
-```
-
-Bis dahin aus einem lokal erzeugten Archiv (`npm pack` im Paket-Repository):
-
-```sh
-npm install /pfad/zum/flokani.digital-erecht24-astro-0.1.0.tgz
 ```
 
 ## Schnellstart
