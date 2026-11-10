@@ -1,0 +1,62 @@
+name: Release
+
+# Veröffentlicht auf npm per Trusted Publishing (OIDC), ohne Token und ohne Passkey.
+# Auslöser: Tag v<version>, der zur Version in package.json passt.
+
+on:
+  push:
+    tags: ['v*']
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    name: Prüfen
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7.0.1
+      - uses: actions/setup-node@v7.1.0
+        with:
+          node-version: '24.22.1'
+          cache: npm
+      - name: Tag und package.json vergleichen
+        run: |
+          VERSION=$(node -p "require('./package.json').version")
+          if [ "${GITHUB_REF_NAME}" != "v${VERSION}" ]; then
+            echo "Tag ${GITHUB_REF_NAME} passt nicht zur package.json-Version v${VERSION}" >&2
+            exit 1
+          fi
+      - run: npm ci
+      - run: npm run check
+      - run: npm test
+      - run: npm run test:integration
+
+  publish:
+    name: Auf npm veröffentlichen
+    needs: verify
+    runs-on: ubuntu-latest
+    # Environment mit Freigabe durch Maintainer; derselbe Name steht im npm-Trusted-Publisher.
+    environment: npm-publish
+    permissions:
+      contents: read
+      id-token: write # OIDC für npm Trusted Publishing und Provenance
+    steps:
+      - uses: actions/checkout@v7.0.1
+      - uses: actions/setup-node@v7.1.0
+        with:
+          node-version: '24.22.1'
+          registry-url: 'https://registry.npmjs.org'
+      - name: npm-Version prüfen (Trusted Publishing ab 11.5.1)
+        run: |
+          npm --version
+          node -e "const [a,b,c]=process.argv[1].split('.').map(Number); if (a<11 || (a===11 && (b<5 || (b===5 && c<1)))) { console.error('npm zu alt für Trusted Publishing'); process.exit(1); }" "$(npm --version)"
+      - run: npm ci
+      - name: Veröffentlichen
+        run: |
+          VERSION=$(node -p "require('./package.json').version")
+          case "$VERSION" in
+            *-*) TAG=next ;;
+            *)   TAG=latest ;;
+          esac
+          npm publish --access public --tag "$TAG"

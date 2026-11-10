@@ -95,13 +95,17 @@ Erledigt für 0.1.0: Browserprüfung und Live-Abruf (Deutsch) im ersten echten F
 
 Eine veröffentlichte Version lässt sich auf npm nie wieder neu hochladen, auch nicht nach `unpublish`. Jede Korrektur braucht eine neue Version.
 
+Die Veröffentlichung läuft über den Workflow `.github/workflows/release.yml` mit npm Trusted Publishing (OIDC). Es werden weder npm-Token noch Passkey-Bestätigungen benötigt.
+
 1. CI auf `main` ist grün.
-2. Repository auf GitHub öffentlich stellen. Die README verlinkt Doku und Lizenz absolut auf GitHub; bei privatem Repository führen diese Links auf npmjs.com ins Leere.
-3. Version in `package.json` setzen (`"private"` ist für 0.1.0 bereits entfernt). Vor der finalen Version im `CHANGELOG.md` „unveröffentlicht“ durch das Datum ersetzen.
-4. `npm publish --dry-run` prüfen: nur `dist/`, `components/`, README, LICENSE und `package.json`.
-5. Vorabversion veröffentlichen, zum Beispiel `0.1.0-rc.0`: `npm publish --access public --tag next`.
-6. In einem Kundenprojekt `npm i @flokani.digital/erecht24-astro@next` installieren, `astro build` und die Rechtstextseiten im Browser prüfen.
-7. Endgültige Version veröffentlichen: `npm publish --access public`. Danach Git-Tag `v<version>` setzen und pushen.
+2. Version in `package.json` setzen; vor einer finalen Version im `CHANGELOG.md` das Datum eintragen. Per Pull Request nach `main` mergen.
+3. `npm publish --dry-run --tag next` bzw. `--tag latest` prüfen: nur `dist/`, `components/`, README, LICENSE und `package.json`.
+4. Tag `v<version>` auf `main` setzen und pushen, zum Beispiel `git tag v0.1.1 && git push origin v0.1.1`. Der Tag muss exakt zur Version in `package.json` passen. Tags `v*` lassen sich danach nicht mehr verschieben oder löschen.
+5. Der Workflow prüft (Typen, Tests, Integrationstests) und wartet dann auf die Freigabe im GitHub-Environment `npm-publish`. Nach der Freigabe veröffentlicht er mit Provenance. Versionen mit Bindestrich (zum Beispiel `0.2.0-rc.0`) erhalten den Dist-Tag `next`, alle anderen `latest`.
+6. Bei Vorabversionen in einem Kundenprojekt `npm i @flokani.digital/erecht24-astro@next` installieren, `astro build` und die Rechtstextseiten im Browser prüfen.
+7. GitHub Release zum Tag anlegen.
+
+Einrichtung (einmalig, erledigt für das Paket): auf npmjs.com unter Paket → Settings → Trusted Publisher: GitHub Actions, Organisation `Flokani-Digital`, Repository `erecht24-astro`, Workflow `release.yml`, Environment `npm-publish`, „Allow npm publish“ aktiv.
 
 ## Commits
 
