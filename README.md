@@ -1,5 +1,9 @@
 # Astro Rechtstexte für eRecht24
 
+[![npm](https://img.shields.io/npm/v/@flokani.digital/erecht24-astro)](https://www.npmjs.com/package/@flokani.digital/erecht24-astro)
+[![CI](https://github.com/Flokani-Digital/erecht24-astro/actions/workflows/ci.yml/badge.svg)](https://github.com/Flokani-Digital/erecht24-astro/actions/workflows/ci.yml)
+[![Lizenz: MIT](https://img.shields.io/npm/l/@flokani.digital/erecht24-astro)](https://github.com/Flokani-Digital/erecht24-astro/blob/main/LICENSE)
+
 `@flokani.digital/erecht24-astro` ist eine Astro-Integration, die Impressum, Datenschutzerklärung und optional die Datenschutzerklärung für Social Media aus deinem [eRecht24](https://www.e-recht24.de/)-Projekt beim Build abruft und als HTML ausgibt. Im Browser deiner Besucher findet kein API-Aufruf statt.
 
 > Kein offizielles Produkt von eRecht24. Die Rechtstexte stammen unverändert von eRecht24; für ihre Vollständigkeit, Aktualität und korrekte Einbindung bleibt der Betreiber der Website verantwortlich.

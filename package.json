@@ -1,6 +1,6 @@
 {
   "name": "@flokani.digital/erecht24-astro",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Astro Rechtstexte für eRecht24: Rechtstexte beim Build abrufen und statisch ausgeben.",
   "author": "Flokani GmbH",
   "type": "module",
@@ -11,7 +11,7 @@
     "./LegalText.astro": "./components/LegalText.astro"
   },
   "files": ["dist", "components"],
-  "keywords": ["astro-integration", "astro-component", "erecht24", "rechtstexte"],
+  "keywords": ["astro-integration", "astro-component", "astro", "erecht24", "rechtstexte", "impressum", "datenschutz"],
   "repository": { "type": "git", "url": "git+https://github.com/Flokani-Digital/erecht24-astro.git" },
   "homepage": "https://github.com/Flokani-Digital/erecht24-astro#readme",
   "bugs": { "url": "https://github.com/Flokani-Digital/erecht24-astro/issues" },
