@@ -1,6 +1,6 @@
 # Changelog
 
-## 0.1.0 (unveröffentlicht)
+## 0.1.0 (2026-11-10)
 
 - Astro 6 wird zusätzlich zu Astro 7 unterstützt (Peer-Abhängigkeiten: `astro ^6.0.0 || ^7.4.2`, `vite ^7.3.1 || ^8.3.5`). Der Quellcode blieb unverändert. Die CI prüft Astro 6.0.0, 6.4.8 und 7 jeweils unter Node 22.23.4 und 24.22.1; der Integrationstest gibt die tatsächlich installierten Versionen aus und schlägt fehl, wenn eine vorgegebene Version nicht installiert wurde. Zwischenstände 6.1 bis 6.3 sind nicht eigens getestet.
 - Abhängigkeiten aktualisiert: Astro 7.4.2, Vite 8.3.5, Node-Adapter 11.1.9, Cloudflare-Adapter 14.4.2, Wrangler 4.153.0 und Astro Check 0.9.12; TypeScript bleibt wegen Astro Check auf der kompatiblen Version 6.0.3.
