@@ -1,11 +1,13 @@
 name: Release
 
 # Veröffentlicht auf npm per Trusted Publishing (OIDC), ohne Token und ohne Passkey.
-# Auslöser: Tag v<version>, der zur Version in package.json passt.
+# Auslöser: Tag v<version>, der zur Version in package.json passt,
+# oder manuell (Actions → Release → Run workflow) ausschließlich von main.
 
 on:
   push:
     tags: ['v*']
+  workflow_dispatch:
 
 permissions:
   contents: read
@@ -20,8 +22,15 @@ jobs:
         with:
           node-version: '24.22.1'
           cache: npm
-      - name: Tag und package.json vergleichen
+      - name: Auslöser prüfen (Tag passt zur Version, manueller Lauf nur auf main)
         run: |
+          if [ "${GITHUB_EVENT_NAME}" = "workflow_dispatch" ]; then
+            if [ "${GITHUB_REF}" != "refs/heads/main" ]; then
+              echo "Manueller Lauf nur von main erlaubt, nicht von ${GITHUB_REF}" >&2
+              exit 1
+            fi
+            exit 0
+          fi
           VERSION=$(node -p "require('./package.json').version")
           if [ "${GITHUB_REF_NAME}" != "v${VERSION}" ]; then
             echo "Tag ${GITHUB_REF_NAME} passt nicht zur package.json-Version v${VERSION}" >&2

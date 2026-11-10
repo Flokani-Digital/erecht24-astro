@@ -100,7 +100,7 @@ Die Veröffentlichung läuft über den Workflow `.github/workflows/release.yml` 
 1. CI auf `main` ist grün.
 2. Version in `package.json` setzen; vor einer finalen Version im `CHANGELOG.md` das Datum eintragen. Per Pull Request nach `main` mergen.
 3. `npm publish --dry-run --tag next` bzw. `--tag latest` prüfen: nur `dist/`, `components/`, README, LICENSE und `package.json`.
-4. Tag `v<version>` auf `main` setzen und pushen, zum Beispiel `git tag v0.1.1 && git push origin v0.1.1`. Der Tag muss exakt zur Version in `package.json` passen. Tags `v*` lassen sich danach nicht mehr verschieben oder löschen.
+4. Tag `v<version>` auf `main` setzen und pushen, zum Beispiel `git tag v0.1.1 && git push origin v0.1.1`. Der Tag muss exakt zur Version in `package.json` passen. Tags `v*` lassen sich danach nicht mehr verschieben oder löschen. Alternativ lässt sich der Workflow ohne Tag unter Actions → Release → „Run workflow“ auf `main` starten, zum Beispiel für einen Wiederholungslauf.
 5. Der Workflow prüft (Typen, Tests, Integrationstests) und wartet dann auf die Freigabe im GitHub-Environment `npm-publish`. Nach der Freigabe veröffentlicht er mit Provenance. Versionen mit Bindestrich (zum Beispiel `0.2.0-rc.0`) erhalten den Dist-Tag `next`, alle anderen `latest`.
 6. Bei Vorabversionen in einem Kundenprojekt `npm i @flokani.digital/erecht24-astro@next` installieren, `astro build` und die Rechtstextseiten im Browser prüfen.
 7. GitHub Release zum Tag anlegen.
