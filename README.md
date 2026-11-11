@@ -39,8 +39,10 @@ Ohne Optionen werden Impressum und Datenschutzerklärung auf Deutsch geladen.
 
 **2. API-Key hinterlegen**
 
+Trage den Key in die `.env` deines Astro-Projekts ein:
+
 ```dotenv
-# .env.local (nicht versionieren)
+# .env
 ERECHT24_API_KEY=dein-projekt-api-key
 ```
 

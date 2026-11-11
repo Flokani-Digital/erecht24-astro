@@ -6,7 +6,7 @@ Alle Meldungen beginnen mit `[@flokani.digital/erecht24-astro]`.
 
 | Meldung | Ursache | Lösung |
 |---|---|---|
-| `ERECHT24_API_KEY wird für den Abruf benötigt.` | Variable fehlt beim Build oder beim ersten Rendern in `dev` | In `.env.local` oder als Secret setzen, siehe [Zugangsdaten](zugangsdaten.md). Bei `vite.envDir: false` in die Prozessumgebung |
+| `ERECHT24_API_KEY wird für den Abruf benötigt.` | Variable fehlt beim Build oder beim ersten Rendern in `dev` | In der `.env` oder als Secret setzen, siehe [Zugangsdaten](zugangsdaten.md). Bei `vite.envDir: false` in die Prozessumgebung |
 | `Zugangsschlüssel enthalten ungültige Zeichen.` | Leerzeichen, Zeilenumbruch oder Nicht-ASCII-Zeichen im Wert | Nur den reinen Key ohne Leerraum eintragen, beim Kopieren auf versteckte Zeichen achten |
 | `Das Paket enthält noch keinen eRecht24-Developer-Key.` | Kein eingebauter Plugin-Key im Paket | `ERECHT24_PLUGIN_KEY` mit eigenem Developer-Key setzen |
 
