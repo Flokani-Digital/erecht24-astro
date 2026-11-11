@@ -11,13 +11,13 @@ Du musst in der Regel nur den Projekt-API-Key setzen.
 
 ## API-Key setzen
 
-Lege im **Astro-Projekt** eine nicht versionierte Datei an, zum Beispiel `.env.local`:
+Trage den Key in die `.env` deines Astro-Projekts ein:
 
 ```dotenv
 ERECHT24_API_KEY=dein-projekt-api-key
 ```
 
-Trage die Datei in `.gitignore` ein. Verwende **keinen** `PUBLIC_`-Präfix; der Key darf nie im Browser landen.
+Verwende **keinen** `PUBLIC_`-Präfix; der Key darf nie im Browser landen.
 
 ### Wo die Variable gelesen wird
 
